@@ -1,0 +1,122 @@
+{
+	"Name": "RapidsControlPlugin",
+	"Version": "0.1.0.0",
+	"Author": "Matt Schouten",
+	"Actions": [
+		{
+			"Name": "Counter",
+			"UUID": "com.cybadger.rapids-control-plugin.increment",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Displays a count, which increments by one on press.",
+			"PropertyInspectorPath": "ui/increment-counter.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Mute",
+			"UUID": "com.cybadger.rapids-control-plugin.mute",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Commands RapidsControl to mute.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Unmute",
+			"UUID": "com.cybadger.rapids-control-plugin.unmute",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Commands RapidsControl to unmute.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Stop Video",
+			"UUID": "com.cybadger.rapids-control-plugin.stop-video",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Commands RapidsControl to stop video.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Start Video",
+			"UUID": "com.cybadger.rapids-control-plugin.start-video",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Commands RapidsControl to start video.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "End for All",
+			"UUID": "com.cybadger.rapids-control-plugin.end-for-all",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Commands RapidsControl to end the meeting for all participants.",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		}
+	],
+	"Category": "RapidsControlPlugin",
+	"CategoryIcon": "imgs/plugin/category-icon",
+	"CodePath": "bin/plugin.js",
+	"Description": "StreamDeck plugin to interface with the RapidsControl app to control videoconferencing applications",
+	"Icon": "imgs/plugin/marketplace",
+	"SDKVersion": 2,
+	"Software": {
+		"MinimumVersion": "6.5"
+	},
+	"OS": [
+		{
+			"Platform": "mac",
+			"MinimumVersion": "12"
+		},
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		}
+	],
+	"Nodejs": {
+		"Version": "20",
+		"Debug": "enabled"
+	},
+	"UUID": "com.cybadger.rapids-control-plugin"
+}

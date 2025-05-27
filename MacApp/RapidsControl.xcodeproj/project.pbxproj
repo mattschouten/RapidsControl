@@ -1,0 +1,605 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C981339C2DC3E85D00864DE6 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = C981339B2DC3E85D00864DE6 /* ArgumentParser */; };
+		C98133A92DDAA30D00864DE6 /* NIO in Frameworks */ = {isa = PBXBuildFile; productRef = C98133A82DDAA30D00864DE6 /* NIO */; };
+		C98133AB2DDAA30D00864DE6 /* NIOPosix in Frameworks */ = {isa = PBXBuildFile; productRef = C98133AA2DDAA30D00864DE6 /* NIOPosix */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C981337C2DC3D74600864DE6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C98133652DC3D74100864DE6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C981336C2DC3D74200864DE6;
+			remoteInfo = RapidsControl;
+		};
+		C98133862DC3D74700864DE6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C98133652DC3D74100864DE6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C981336C2DC3D74200864DE6;
+			remoteInfo = RapidsControl;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		C981336D2DC3D74200864DE6 /* RapidsControl.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RapidsControl.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C981337B2DC3D74600864DE6 /* RapidsControlTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RapidsControlTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C98133852DC3D74700864DE6 /* RapidsControlUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RapidsControlUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		C981336F2DC3D74200864DE6 /* RapidsControl */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = RapidsControl;
+			sourceTree = "<group>";
+		};
+		C981337E2DC3D74600864DE6 /* RapidsControlTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = RapidsControlTests;
+			sourceTree = "<group>";
+		};
+		C98133882DC3D74700864DE6 /* RapidsControlUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = RapidsControlUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C981336A2DC3D74200864DE6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C981339C2DC3E85D00864DE6 /* ArgumentParser in Frameworks */,
+				C98133AB2DDAA30D00864DE6 /* NIOPosix in Frameworks */,
+				C98133A92DDAA30D00864DE6 /* NIO in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C98133782DC3D74600864DE6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C98133822DC3D74700864DE6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C98133642DC3D74100864DE6 = {
+			isa = PBXGroup;
+			children = (
+				C981336F2DC3D74200864DE6 /* RapidsControl */,
+				C981337E2DC3D74600864DE6 /* RapidsControlTests */,
+				C98133882DC3D74700864DE6 /* RapidsControlUITests */,
+				C981336E2DC3D74200864DE6 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C981336E2DC3D74200864DE6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C981336D2DC3D74200864DE6 /* RapidsControl.app */,
+				C981337B2DC3D74600864DE6 /* RapidsControlTests.xctest */,
+				C98133852DC3D74700864DE6 /* RapidsControlUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C981336C2DC3D74200864DE6 /* RapidsControl */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C981338F2DC3D74700864DE6 /* Build configuration list for PBXNativeTarget "RapidsControl" */;
+			buildPhases = (
+				C98133692DC3D74200864DE6 /* Sources */,
+				C981336A2DC3D74200864DE6 /* Frameworks */,
+				C981336B2DC3D74200864DE6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				C981336F2DC3D74200864DE6 /* RapidsControl */,
+			);
+			name = RapidsControl;
+			packageProductDependencies = (
+				C981339B2DC3E85D00864DE6 /* ArgumentParser */,
+				C98133A82DDAA30D00864DE6 /* NIO */,
+				C98133AA2DDAA30D00864DE6 /* NIOPosix */,
+			);
+			productName = RapidsControl;
+			productReference = C981336D2DC3D74200864DE6 /* RapidsControl.app */;
+			productType = "com.apple.product-type.application";
+		};
+		C981337A2DC3D74600864DE6 /* RapidsControlTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C98133922DC3D74700864DE6 /* Build configuration list for PBXNativeTarget "RapidsControlTests" */;
+			buildPhases = (
+				C98133772DC3D74600864DE6 /* Sources */,
+				C98133782DC3D74600864DE6 /* Frameworks */,
+				C98133792DC3D74600864DE6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C981337D2DC3D74600864DE6 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				C981337E2DC3D74600864DE6 /* RapidsControlTests */,
+			);
+			name = RapidsControlTests;
+			packageProductDependencies = (
+			);
+			productName = RapidsControlTests;
+			productReference = C981337B2DC3D74600864DE6 /* RapidsControlTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		C98133842DC3D74700864DE6 /* RapidsControlUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C98133952DC3D74700864DE6 /* Build configuration list for PBXNativeTarget "RapidsControlUITests" */;
+			buildPhases = (
+				C98133812DC3D74700864DE6 /* Sources */,
+				C98133822DC3D74700864DE6 /* Frameworks */,
+				C98133832DC3D74700864DE6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C98133872DC3D74700864DE6 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				C98133882DC3D74700864DE6 /* RapidsControlUITests */,
+			);
+			name = RapidsControlUITests;
+			packageProductDependencies = (
+			);
+			productName = RapidsControlUITests;
+			productReference = C98133852DC3D74700864DE6 /* RapidsControlUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C98133652DC3D74100864DE6 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1630;
+				LastUpgradeCheck = 1630;
+				TargetAttributes = {
+					C981336C2DC3D74200864DE6 = {
+						CreatedOnToolsVersion = 16.3;
+					};
+					C981337A2DC3D74600864DE6 = {
+						CreatedOnToolsVersion = 16.3;
+						TestTargetID = C981336C2DC3D74200864DE6;
+					};
+					C98133842DC3D74700864DE6 = {
+						CreatedOnToolsVersion = 16.3;
+						TestTargetID = C981336C2DC3D74200864DE6;
+					};
+				};
+			};
+			buildConfigurationList = C98133682DC3D74100864DE6 /* Build configuration list for PBXProject "RapidsControl" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = C98133642DC3D74100864DE6;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				C981339A2DC3DF3500864DE6 /* XCRemoteSwiftPackageReference "swift-argument-parser" */,
+				C98133A72DDA9D8300864DE6 /* XCRemoteSwiftPackageReference "swift-nio" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = C981336E2DC3D74200864DE6 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C981336C2DC3D74200864DE6 /* RapidsControl */,
+				C981337A2DC3D74600864DE6 /* RapidsControlTests */,
+				C98133842DC3D74700864DE6 /* RapidsControlUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C981336B2DC3D74200864DE6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C98133792DC3D74600864DE6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C98133832DC3D74700864DE6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C98133692DC3D74200864DE6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C98133772DC3D74600864DE6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C98133812DC3D74700864DE6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C981337D2DC3D74600864DE6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C981336C2DC3D74200864DE6 /* RapidsControl */;
+			targetProxy = C981337C2DC3D74600864DE6 /* PBXContainerItemProxy */;
+		};
+		C98133872DC3D74700864DE6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C981336C2DC3D74200864DE6 /* RapidsControl */;
+			targetProxy = C98133862DC3D74700864DE6 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		C981338D2DC3D74700864DE6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.4;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		C981338E2DC3D74700864DE6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.4;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		C98133902DC3D74700864DE6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = RapidsControl/RapidsControl.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 22K3JHBZ9P;
+				ENABLE_HARDENED_RUNTIME = NO;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cybadger.app.RapidsControl;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		C98133912DC3D74700864DE6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = RapidsControl/RapidsControl.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 22K3JHBZ9P;
+				ENABLE_HARDENED_RUNTIME = NO;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cybadger.app.RapidsControl;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		C98133932DC3D74700864DE6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cybadger.app.RapidsControlTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RapidsControl.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/RapidsControl";
+			};
+			name = Debug;
+		};
+		C98133942DC3D74700864DE6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cybadger.app.RapidsControlTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RapidsControl.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/RapidsControl";
+			};
+			name = Release;
+		};
+		C98133962DC3D74700864DE6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cybadger.app.RapidsControlUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = RapidsControl;
+			};
+			name = Debug;
+		};
+		C98133972DC3D74700864DE6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cybadger.app.RapidsControlUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = RapidsControl;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C98133682DC3D74100864DE6 /* Build configuration list for PBXProject "RapidsControl" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C981338D2DC3D74700864DE6 /* Debug */,
+				C981338E2DC3D74700864DE6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C981338F2DC3D74700864DE6 /* Build configuration list for PBXNativeTarget "RapidsControl" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C98133902DC3D74700864DE6 /* Debug */,
+				C98133912DC3D74700864DE6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C98133922DC3D74700864DE6 /* Build configuration list for PBXNativeTarget "RapidsControlTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C98133932DC3D74700864DE6 /* Debug */,
+				C98133942DC3D74700864DE6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C98133952DC3D74700864DE6 /* Build configuration list for PBXNativeTarget "RapidsControlUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C98133962DC3D74700864DE6 /* Debug */,
+				C98133972DC3D74700864DE6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C981339A2DC3DF3500864DE6 /* XCRemoteSwiftPackageReference "swift-argument-parser" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-argument-parser.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.5.0;
+			};
+		};
+		C98133A72DDA9D8300864DE6 /* XCRemoteSwiftPackageReference "swift-nio" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-nio.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.83.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C981339B2DC3E85D00864DE6 /* ArgumentParser */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C981339A2DC3DF3500864DE6 /* XCRemoteSwiftPackageReference "swift-argument-parser" */;
+			productName = ArgumentParser;
+		};
+		C98133A82DDAA30D00864DE6 /* NIO */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C98133A72DDA9D8300864DE6 /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = NIO;
+		};
+		C98133AA2DDAA30D00864DE6 /* NIOPosix */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C98133A72DDA9D8300864DE6 /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = NIOPosix;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = C98133652DC3D74100864DE6 /* Project object */;
+}
