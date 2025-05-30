@@ -1,6 +1,5 @@
 import streamDeck, { LogLevel } from "@elgato/streamDeck";
 
-import { IncrementCounter } from "./actions/increment-counter";
 import { EndMeetingForAll, MuteZoom, StartZoomVideo, StopZoomVideo, UnmuteZoom } from "./actions/zoom-actions";
 
 import * as net from 'net';
@@ -125,8 +124,7 @@ export function sendEndForAll() {
 
 streamDeck.logger.setLevel(LogLevel.TRACE);
 
-// Register the increment action.
-streamDeck.actions.registerAction(new IncrementCounter());
+// Register the actions
 streamDeck.actions.registerAction(new MuteZoom());
 streamDeck.actions.registerAction(new UnmuteZoom());
 streamDeck.actions.registerAction(new StopZoomVideo());
