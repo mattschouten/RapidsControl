@@ -1,5 +1,5 @@
 //
-//  IpcSocket.swift
+//  UdsZoomServer.swift
 //  RapidsControl
 //  Purpose is to create a Unix Domain Socket to communicate to plugins or other
 //  local applications.  For example, to allow a StreamDeck to command Zoom.
@@ -25,7 +25,12 @@ class ZoomCommandHandler: ChannelInboundHandler {
     typealias InboundIn = ByteBuffer
     typealias OutboundOut = ByteBuffer
     
+    private let channel: Channel
     private var messageBuffer = ""
+    
+    init(channel: Channel) {
+        self.channel = channel
+    }
     
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         var buffer = self.unwrapInboundIn(data)
@@ -72,7 +77,7 @@ class ZoomCommandHandler: ChannelInboundHandler {
                        let jsonString = String(data: jsonData, encoding: .utf8) {
                         response = jsonString
                     } else {
-                        response = "staus broke"
+                        response = "status broke"
                     }
                 default:
                     response = "Unknown Command"
@@ -84,12 +89,30 @@ class ZoomCommandHandler: ChannelInboundHandler {
             }
         }
     }
+    
+    public func sendStatus(statusMessage: ZoomStatusMessage) {
+        guard channel.isActive else {
+            print("Channel is not active; cannot send status")
+            return
+        }
+        
+        guard let jsonData = try? JSONEncoder().encode(statusMessage),
+              let jsonString = String(data: jsonData, encoding: .utf8) else {
+            print("Failed to encode status message")
+            return
+        }
+        
+        var buffer = channel.allocator.buffer(capacity: 256)
+        buffer.writeString(jsonString + "\n")
+        channel.writeAndFlush(buffer, promise: nil)
+    }
 }
 
 public class UDSZoomServer {
     private var socketPath: String = ""
     private let group = MultiThreadedEventLoopGroup(numberOfThreads: System.coreCount)
     private var channel: Channel?
+    private var handler: ZoomCommandHandler?
     
     public init() {}
 
@@ -98,7 +121,11 @@ public class UDSZoomServer {
         let bootstrap = ServerBootstrap(group: group)
             .serverChannelOption(ChannelOptions.backlog, value: 256)
             .serverChannelOption(ChannelOptions.socketOption(.so_reuseaddr), value: 1)
-            .childChannelInitializer { channel in channel.pipeline.addHandler((ZoomCommandHandler())) }
+            .childChannelInitializer { channel in
+                let handler = ZoomCommandHandler(channel: channel)
+                self.handler = handler
+                return channel.pipeline.addHandler(handler)
+            }
         
         unlink(socketPath)
         
@@ -108,6 +135,16 @@ public class UDSZoomServer {
         } catch {
             print("Failed to start UDS Server: \(error)")
         }
+    }
+    
+    // TODO:  Better data type for params
+    func sendStatusUpdate(audioStatus: ZoomAudioStatus, videoStatus: ZoomVideoStatus) {
+        let statusMessage = ZoomStatusMessage(
+            type: "status",
+            audioStatus: String(describing: audioStatus),
+            videoStatus: String(describing: videoStatus))
+        
+        handler?.sendStatus(statusMessage: statusMessage)
     }
     
     public func stop() {
