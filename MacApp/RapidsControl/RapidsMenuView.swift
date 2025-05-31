@@ -2,33 +2,30 @@ import SwiftUI
 import Combine
 
 struct RapidsMenuView: View {
-    @State private var audioStatus: ZoomAudioStatus = .unknown
-    @State private var lastAudioStatus: ZoomAudioStatus = .unknown
-    @State private var videoStatus: ZoomVideoStatus = .unknown
-    @State private var lastVideoStatus: ZoomVideoStatus = .unknown
+    @EnvironmentObject var controller: RapidsController
 
-    private let timer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
-    
     var body: some View {
         VStack {
             // TODO:  ADD a status display, maybe with icons.
             
             Button("Mute Zoom") {
                 muteZoom()
-                audioStatus = getAudioStatus()
+                controller.refreshStatus()
             }
             
             Button("Unmute Zoom") {
                 unmuteZoom()
-                audioStatus = getAudioStatus()
+                controller.refreshStatus()
             }
             
             Button("Start Video") {
                 turnOnZoomVideo()
+                controller.refreshStatus()
             }
             
             Button("Stop Video") {
                 turnOffZoomVideo()
+                controller.refreshStatus()
             }
             
             Button("End Meeting for All") {
@@ -38,13 +35,13 @@ struct RapidsMenuView: View {
             Divider()
             
             Button("Force Status Refresh") {
-                audioStatus = getAudioStatus()
+                controller.refreshStatus()
             }
             
             Divider()
             
             Button(action: {
-                switch audioStatus {
+                switch controller.audioStatus {
                 case .muted:
                     unmuteZoom()
                 case .unmuted:
@@ -52,13 +49,13 @@ struct RapidsMenuView: View {
                 case .unknown:
                     break // Only need to update audio status
                 }
-                audioStatus = getAudioStatus()
+                controller.refreshStatus()
             }) {
                 Label(toggleAudioLabelText(), systemImage: toggleAudioIconName())
             }
             
             Button(action: {
-                switch videoStatus {
+                switch controller.videoStatus {
                 case .off:
                     turnOnZoomVideo()
                 case .on:
@@ -66,7 +63,7 @@ struct RapidsMenuView: View {
                 case .unknown:
                     break // Only need to update video status
                 }
-                videoStatus = getVideoStatus()
+                controller.refreshStatus()
             }) {
                 Label(toggleVideoLabelText(), systemImage: toggleVideoIconName())
             }
@@ -78,29 +75,13 @@ struct RapidsMenuView: View {
             }
         }
         .onAppear {
-            audioStatus = getAudioStatus()
-            videoStatus = getVideoStatus()
-        }
-        .onReceive(timer) { _ in
-            audioStatus = getAudioStatus()
-            videoStatus = getVideoStatus()
-
-            if audioStatus != lastAudioStatus {
-                print("Audio status now \(audioStatus)")
-            }
-            
-            if videoStatus != lastVideoStatus {
-                print("Video status now \(videoStatus)")
-            }
-
-            lastAudioStatus = audioStatus
-            lastVideoStatus = videoStatus
+            controller.refreshStatus()
         }
         .padding()
     }
 
     func toggleAudioLabelText() -> String {
-        switch audioStatus {
+        switch controller.audioStatus {
         case .muted:
             return "Toggle:  Unmute Zoom"
         case .unmuted:
@@ -111,7 +92,7 @@ struct RapidsMenuView: View {
     }
     
     func toggleAudioIconName() -> String {
-        switch audioStatus {
+        switch controller.audioStatus {
         case .muted:
             return "mic.slash.fill"
         case .unmuted:
@@ -122,7 +103,7 @@ struct RapidsMenuView: View {
     }
     
     func toggleVideoLabelText() -> String {
-        switch videoStatus {
+        switch controller.videoStatus {
         case .on:
             return "Toggle:  Stop Video"
         case .off:
@@ -133,7 +114,7 @@ struct RapidsMenuView: View {
     }
     
     func toggleVideoIconName() -> String {
-        switch videoStatus {
+        switch controller.videoStatus {
         case .on:
             return "video.slash.fill"
         case .off:

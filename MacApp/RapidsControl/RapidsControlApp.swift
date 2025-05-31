@@ -9,15 +9,16 @@ import ArgumentParser
 import SwiftUI
 
 struct RapidsControlApp: App {
+    let controller = RapidsController()
     let server: UDSZoomServer = UDSZoomServer()
     
     init() {
         requestAccessibilityPermissions()
-        server.start()
+        controller.startServer()
     }
    
     func handleShutdown() {
-        server.stop()
+        controller.stopServer()
     }
     
     var body: some Scene {
@@ -25,6 +26,7 @@ struct RapidsControlApp: App {
                      systemImage: "water.waves.and.arrow.trianglehead.up")
         {
             RapidsMenuView()
+                .environmentObject(controller)
                 .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in handleShutdown() }
         }
     }
