@@ -9,6 +9,9 @@ struct ControlArguments: ParsableCommand {
             help: "Command to execute:  mute, unmute, status")
     var command: String?
     
+    // TODO:  CONSIDER removing command-line options.
+    // (These come from an earlier, less workable idea about how to integrate into Stream Deck)
+    // (But it's still cool to be able to use this in a script 🤷‍♂️)
     mutating func run() throws {
         if let command {
             print("Executing command: \(command)")
@@ -31,7 +34,6 @@ struct ControlArguments: ParsableCommand {
         else
         {
             // No command given.  Run the GUI.
-            print("no command");
             RapidsControlApp.main()
         }
     }

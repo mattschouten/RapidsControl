@@ -8,9 +8,8 @@ enum ZoomAudioStatus {
 }
 
 func muteZoom() {
-    print("MUTE")
     if getAudioStatus() != .muted {
-        print("Not muted!  Muting!")
+        print("Muting Zoom Audio")
         if let muteMenuItem = findZoomMenuItem(title: "Mute audio") {
             AXUIElementPerformAction(muteMenuItem, kAXPressAction as CFString)
         }
@@ -18,8 +17,8 @@ func muteZoom() {
 }
 
 func unmuteZoom() {
-    print("UNMUTE")
     if getAudioStatus() != .unmuted {
+        print("Unmuting Zoom Audio")
         if let muteMenuItem = findZoomMenuItem(title: "Unmute audio") {
             AXUIElementPerformAction(muteMenuItem, kAXPressAction as CFString)
         }
@@ -27,9 +26,9 @@ func unmuteZoom() {
 }
 
 func turnOffZoomVideo() {
-    print("VIDEO OFF")
     // TODO:  GET VIDEO STATUS
     //if getAudioStatus() != .unmuted {
+    print("Stopping Zoom Video")
         if let muteMenuItem = findZoomMenuItem(title: "Stop video") {
             AXUIElementPerformAction(muteMenuItem, kAXPressAction as CFString)
         }
@@ -37,9 +36,9 @@ func turnOffZoomVideo() {
 }
 
 func turnOnZoomVideo() {
-    print("VIDEO ON")
     // TODO:  GET VIDEO STATUS
     //if getAudioStatus() != .unmuted {
+    print("Starting Zoom Video")
         if let muteMenuItem = findZoomMenuItem(title: "Start video") {
             AXUIElementPerformAction(muteMenuItem, kAXPressAction as CFString)
         }
@@ -47,13 +46,13 @@ func turnOnZoomVideo() {
 }
 
 func endMeetingForAll() {
-    print("ENDING FOR ALL")
+    print("Attempting to End Meeting for All")
+    
     // Zoom only shows the confirmation dialog if the Zoom window is active.  So raise it.
     if let zoomApp = getZoomApp() {
         zoomApp.activate()
     }
     // If this fails, no exceptions are thrown.  The close menu just doesn't do anything.  Weird, but true.
-
     if let closeMenuItem = findZoomMenuItem(title: "Close") {
         let result = AXUIElementPerformAction(closeMenuItem, kAXPressAction as CFString)
         if result != .success {
@@ -62,6 +61,7 @@ func endMeetingForAll() {
     }
 
     // Probably closing the window, then finding the right button?
+    // TODO:  Try a few times, faster, and stop trying once found.
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
         print("POOF")
         if let zoomAppElement = getZoomAppElement(),

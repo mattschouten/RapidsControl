@@ -3,26 +3,13 @@ import Combine
 
 struct RapidsMenuView: View {
     @State private var audioStatus: ZoomAudioStatus = .unknown
+    @State private var lastAudioStatus: ZoomAudioStatus = .unknown
     
-    private let timer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
+    private let timer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
     
     var body: some View {
         VStack {
-            Label {
-                Text("Mute Status")
-            } icon: {
-                switch audioStatus {
-                case .muted:
-                    Image(systemName: "mic.slash.fill")
-                        .foregroundColor(.red)
-                case .unmuted:
-                    Image(systemName: "mic.fill")
-                case .unknown:
-                    Image(systemName: "questionmark.circle")
-                }
-            }
-            
-            Divider()
+            // TODO:  ADD a status display, maybe with icons.
             
             Button("Mute Zoom") {
                 muteZoom()
@@ -46,9 +33,13 @@ struct RapidsMenuView: View {
                 endMeetingForAll()
             }
 
-            Button("Refresh Status") {
+            Divider()
+            
+            Button("Force Status Refresh") {
                 audioStatus = getAudioStatus()
             }
+            
+            Divider()
             
             Button(action: {
                 switch audioStatus {
@@ -75,19 +66,24 @@ struct RapidsMenuView: View {
         }
         .onReceive(timer) { _ in
             audioStatus = getAudioStatus()
-            print(audioStatus)
+            
+            if audioStatus != lastAudioStatus {
+                print("Audio status now \(audioStatus)")
+            }
+            
+            lastAudioStatus = audioStatus
         }
         .padding()
     }
-    
+
     func toggleLabelText() -> String {
         switch audioStatus {
         case .muted:
-            return "Unmute Zoom"
+            return "Toggle:  Unmute Zoom"
         case .unmuted:
-            return "Mute Zoom"
+            return "Toggle:  Mute Zoom"
         case .unknown:
-            return "Refresh Status"
+            return "Toggle Mute Status"
         }
     }
     
