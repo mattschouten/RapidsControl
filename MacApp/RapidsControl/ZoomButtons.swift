@@ -7,6 +7,12 @@ enum ZoomAudioStatus {
     case unknown
 }
 
+enum ZoomVideoStatus {
+    case on
+    case off
+    case unknown
+}
+
 func muteZoom() {
     if getAudioStatus() != .muted {
         print("Muting Zoom Audio")
@@ -80,6 +86,16 @@ func getAudioStatus() -> ZoomAudioStatus {
         return .muted
     } else if let _ = findZoomMenuItem(title: "Mute audio") {
         return .unmuted
+    } else {
+        return .unknown
+    }
+}
+
+func getVideoStatus() -> ZoomVideoStatus {
+    if let _ = findZoomMenuItem(title: "Stop video") {
+        return .on
+    } else if let _ = findZoomMenuItem(title: "Start Video") {
+        return .off
     } else {
         return .unknown
     }
