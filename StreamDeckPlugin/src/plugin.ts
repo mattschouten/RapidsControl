@@ -33,7 +33,27 @@ export function connectToRapidsControlApp() {
             try {
                 const parsed = JSON.parse(message);
                 streamDeck.logger.info("Received from RapidsControl:  ", parsed);
-                // TODO:  Update images / titles based on audio status...
+                if ((parsed.type ?? '') === 'status') {
+                    const audioStatus = parsed.audioStatus ?? 'unknown';
+
+                    streamDeck.actions.forEach((action) => {
+                        // TODO:  This will need to be separate functions
+                        if (action.manifestId === 'com.cybadger.rapids-control-plugin.mute' ||
+                            action.manifestId === 'com.cybadger.rapids-control-plugin.unmute') {
+                            switch (audioStatus) {
+                                case 'muted':
+                                    action.setImage('imgs/actions/zoom/red-square.svg');
+                                    break;
+                                case 'unmuted':
+                                    action.setImage('imgs/actions/zoom/green-square.svg');
+                                    break;
+                                case 'unknown':
+                                    action.setImage('imgs/actions/zoom/gray-square.svg');
+                                    break;
+                            }
+                        }
+                    });
+                }
             } catch (err) {
                 streamDeck.logger.error("Invalid JSON from RapidsControl", err, data);
             }
@@ -132,5 +152,4 @@ streamDeck.actions.registerAction(new StartZoomVideo());
 streamDeck.actions.registerAction(new EndMeetingForAll());
 
 // Finally, connect to the Stream Deck.
-streamDeck.logger.info("Hello");
 streamDeck.connect();
