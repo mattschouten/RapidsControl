@@ -119,13 +119,14 @@ private func clickAXButton(in button: AXUIElement) -> Bool {
     return result == .success
 }
 
-private func findAXElement(in root: AXUIElement, matching condition: (AXUIElement) -> Bool) -> AXUIElement? {
+private func findAXElement(in root: AXUIElement, matching condition: (AXUIElement) -> Bool, maxDepth: Int) -> AXUIElement? {
     if condition(root) { return root }
     
+    guard maxDepth > 0 else { return nil }
     guard let children = root.children else { return nil }
     
     for child in children {
-        if let match = findAXElement(in: child, matching: condition) {
+        if let match = findAXElement(in: child, matching: condition, maxDepth: maxDepth - 1) {
             return match
         }
     }
@@ -143,7 +144,8 @@ private func findAXButton(withTitle title: String, in appElement: AXUIElement) -
         matching: { element in
             guard let role = element.role, role == kAXButtonRole as String else { return false }
             return element.title == title
-        }
+        },
+        maxDepth: 15
     )
 }
 
