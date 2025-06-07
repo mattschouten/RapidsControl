@@ -1,5 +1,6 @@
 import { streamDeck } from "@elgato/streamDeck";
 import * as net from 'net';
+import { updateKeyIconsForStatus } from "./key-icon-controller";
 
 let udsClient: net.Socket | null = null;
 
@@ -34,38 +35,7 @@ export function connectToRapidsControlApp() {
                     const audioStatus = parsed.audioStatus ?? 'unknown';
                     const videoStatus = parsed.videoStatus ?? 'unknown';
 
-                    streamDeck.actions.forEach((action) => {
-                        // TODO:  This will need to be separate functions
-                        if (action.manifestId === 'com.cybadger.rapids-control-plugin.mute' ||
-                            action.manifestId === 'com.cybadger.rapids-control-plugin.unmute') {
-                            switch (audioStatus) {
-                                case 'muted':
-                                    action.setImage('imgs/actions/zoom/red-square.svg');
-                                    break;
-                                case 'unmuted':
-                                    action.setImage('imgs/actions/zoom/green-square.svg');
-                                    break;
-                                case 'unknown':
-                                    action.setImage('imgs/actions/zoom/gray-square.svg');
-                                    break;
-                            }
-                        }
-
-                        if (action.manifestId === 'com.cybadger.rapids-control-plugin.stop-video' ||
-                            action.manifestId === 'com.cybadger.rapids-control-plugin.start-video') {
-                            switch (videoStatus) {
-                                case 'off':
-                                    action.setImage('imgs/actions/zoom/red-square.svg');
-                                    break;
-                                case 'on':
-                                    action.setImage('imgs/actions/zoom/green-square.svg');
-                                    break;
-                                case 'unknown':
-                                    action.setImage('imgs/actions/zoom/gray-square.svg');
-                                    break;
-                            }
-                        }
-                    });
+                    updateKeyIconsForStatus(audioStatus, videoStatus);
                 }
             } catch (err) {
                 streamDeck.logger.error("Invalid JSON from RapidsControl", err, data);
