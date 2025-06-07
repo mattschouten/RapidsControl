@@ -94,7 +94,7 @@ func getAudioStatus() -> ZoomAudioStatus {
 func getVideoStatus() -> ZoomVideoStatus {
     if let _ = findZoomMenuItem(title: "Stop video") {
         return .on
-    } else if let _ = findZoomMenuItem(title: "Start Video") {
+    } else if let _ = findZoomMenuItem(title: "Start video") {
         return .off
     } else {
         return .unknown
