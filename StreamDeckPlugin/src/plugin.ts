@@ -35,6 +35,7 @@ export function connectToRapidsControlApp() {
                 streamDeck.logger.info("Received from RapidsControl:  ", parsed);
                 if ((parsed.type ?? '') === 'status') {
                     const audioStatus = parsed.audioStatus ?? 'unknown';
+                    const videoStatus = parsed.videoStatus ?? 'unknown';
 
                     streamDeck.actions.forEach((action) => {
                         // TODO:  This will need to be separate functions
@@ -45,6 +46,21 @@ export function connectToRapidsControlApp() {
                                     action.setImage('imgs/actions/zoom/red-square.svg');
                                     break;
                                 case 'unmuted':
+                                    action.setImage('imgs/actions/zoom/green-square.svg');
+                                    break;
+                                case 'unknown':
+                                    action.setImage('imgs/actions/zoom/gray-square.svg');
+                                    break;
+                            }
+                        }
+
+                        if (action.manifestId === 'com.cybadger.rapids-control-plugin.stop-video' ||
+                            action.manifestId === 'com.cybadger.rapids-control-plugin.start-video') {
+                            switch (videoStatus) {
+                                case 'off':
+                                    action.setImage('imgs/actions/zoom/red-square.svg');
+                                    break;
+                                case 'on':
                                     action.setImage('imgs/actions/zoom/green-square.svg');
                                     break;
                                 case 'unknown':
