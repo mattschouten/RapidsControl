@@ -122,7 +122,10 @@ private func clickAXButton(in button: AXUIElement) -> Bool {
 private func findAXElement(in root: AXUIElement, matching condition: (AXUIElement) -> Bool, maxDepth: Int) -> AXUIElement? {
     if condition(root) { return root }
     
-    guard maxDepth > 0 else { return nil }
+    guard maxDepth > 0 else {
+        printMenuItemRecursive(root, indent: 0)
+        return nil
+    }
     guard let children = root.children else { return nil }
     
     for child in children {
@@ -177,7 +180,7 @@ func findZoomMenuItem(title: String) -> AXUIElement? {
     let result = AXUIElementCopyAttributeValue(zoomApp, kAXMenuBarAttribute as CFString, &menuBarValue)
     guard result == .success else {
         print("Could not get menu bar")
-        printMenuItemRecursive(zoomApp, indent: 0)
+        // printMenuItemRecursive(zoomApp, indent: 0)
         return nil
     }
     
