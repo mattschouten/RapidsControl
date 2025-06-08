@@ -89,6 +89,32 @@ func endMeetingForAll() {
     }
 }
 
+fileprivate func findMeetingWindowByName(_ windowList: [AXUIElement]) -> AXUIElement? {
+    for window in windowList {
+        print ("Window Title: \(String(describing: window.title))")
+        if let title = window.title, title.localizedCaseInsensitiveContains("Zoom Meeting") {
+            return window
+        }
+    }
+    
+    return nil
+}
+
+fileprivate func findMeetingWindowByChildRole(_ windowList: [AXUIElement]) -> AXUIElement? {
+    for window in windowList {
+        if let children = window.children {
+            for child in children {
+                if let role = child.role, role.localizedStandardContains("AXTabGroup") {
+                    print("FOUND IT in \(String(describing: window.title))")
+                    return window
+                }
+            }
+        }
+    }
+    
+    return nil
+}
+
 func activateZoomMeetingWindow() -> Bool {
     guard let zoomApp = getZoomApp() else {
         print("Could not find Zoom app running")
@@ -110,49 +136,23 @@ func activateZoomMeetingWindow() -> Bool {
         return false
     }
     
-    var meetingWindow: AXUIElement? = nil
-    
-    for window in windowList {
-        print ("Window Title: \(String(describing: window.title))")
-        
-        if let title = window.title, title.localizedCaseInsensitiveContains("Zoom Meeting") {
-            // Found the window, activate it!
-            meetingWindow = window
-            break
-        }
-        
-        if let children = window.children {
-            for child in children {
-                print("\t\(String(describing: child.title)) - \(String(describing: child.role))")
-            }
-        }
-    }
+    var meetingWindow = findMeetingWindowByName(windowList)
     
     // If the window isn't found, search again for one containing an AXTabGroup role — right now the meeting window is the only one that does
     if meetingWindow == nil {
         print("Could not find window by name")
-        for window in windowList {
-            if let children = window.children {
-                for child in children {
-                    if let role = child.role, role.localizedStandardContains("AXTabGroup") {
-                        meetingWindow = window
-                        print("FOUND IT in \(window.title)")
-                        break;
-                    }
-                }
-            }
-        }
+        meetingWindow = findMeetingWindowByChildRole(windowList)
     }
     
-    // Bring this window to front
+    // Bring the meeting window to the foreground
     guard let windowToActivate = meetingWindow else {
         return false
     }
     
     AXUIElementPerformAction(windowToActivate, kAXRaiseAction as CFString)
     AXUIElementSetAttributeValue(zoomAppElement, kAXFocusedWindowAttribute as CFString, windowToActivate)
-    
     print("Meeting window should have been raised")
+    // TODO:  Might need to add some pauses!
     
     return true
 }
