@@ -54,10 +54,18 @@ func turnOnZoomVideo() {
 func endMeetingForAll() {
     print("Attempting to End Meeting for All")
     
-    // Zoom only shows the confirmation dialog if the Zoom window is active.  So raise it.
-    if let zoomApp = getZoomApp() {
-        zoomApp.activate()
+    guard getZoomApp() != nil else {
+        print("Could not find Zoom app running")
+        return
     }
+    
+    // Zoom only shows the confirmation dialog if the Zoom meeting window is active.  So raise it.
+    // If the meeting window isn't active—if it's instead the Zoom controls window—the meeting can't be closed either.
+    guard activateZoomMeetingWindow() else {
+        print("Could not activate Zoom meeting window")
+        return
+    }
+    
     // If this fails, no exceptions are thrown.  The close menu just doesn't do anything.  Weird, but true.
     if let closeMenuItem = findZoomMenuItem(title: "Close") {
         let result = AXUIElementPerformAction(closeMenuItem, kAXPressAction as CFString)
@@ -79,6 +87,74 @@ func endMeetingForAll() {
             print("Couldn't find button :(")
         }
     }
+}
+
+func activateZoomMeetingWindow() -> Bool {
+    guard let zoomApp = getZoomApp() else {
+        print("Could not find Zoom app running")
+        return false
+    }
+    
+    // Zoom only shows the confirmation dialog if the Zoom meeting window is active.  So raise it.
+    zoomApp.activate()
+
+    guard let zoomAppElement = getZoomAppElement() else {
+        print("Could not get Zoom App Element")
+        return false
+    }
+    
+    var value: CFTypeRef?
+    let result = AXUIElementCopyAttributeValue(zoomAppElement, kAXWindowsAttribute as CFString, &value)
+    guard result == .success, let windowList = value as? [AXUIElement] else {
+        print("Failed to get windows")
+        return false
+    }
+    
+    var meetingWindow: AXUIElement? = nil
+    
+    for window in windowList {
+        print ("Window Title: \(String(describing: window.title))")
+        
+        if let title = window.title, title.localizedCaseInsensitiveContains("Zoom Meeting") {
+            // Found the window, activate it!
+            meetingWindow = window
+            break
+        }
+        
+        if let children = window.children {
+            for child in children {
+                print("\t\(String(describing: child.title)) - \(String(describing: child.role))")
+            }
+        }
+    }
+    
+    // If the window isn't found, search again for one containing an AXTabGroup role — right now the meeting window is the only one that does
+    if meetingWindow == nil {
+        print("Could not find window by name")
+        for window in windowList {
+            if let children = window.children {
+                for child in children {
+                    if let role = child.role, role.localizedStandardContains("AXTabGroup") {
+                        meetingWindow = window
+                        print("FOUND IT in \(window.title)")
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    
+    // Bring this window to front
+    guard let windowToActivate = meetingWindow else {
+        return false
+    }
+    
+    AXUIElementPerformAction(windowToActivate, kAXRaiseAction as CFString)
+    AXUIElementSetAttributeValue(zoomAppElement, kAXFocusedWindowAttribute as CFString, windowToActivate)
+    
+    print("Meeting window should have been raised")
+    
+    return true
 }
 
 func getAudioStatus() -> ZoomAudioStatus {
