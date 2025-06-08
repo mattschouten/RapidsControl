@@ -212,6 +212,10 @@ private func findMenuItemRecursive(element: AXUIElement, titleToFind: String) ->
 }
 
 private func printMenuItemRecursive(_ element: AXUIElement, indent: Int) {
+    guard indent < 25 else {
+        print("Indent too high.  Clearly something is wrong.")
+        return
+    }
     let indentStr = String(repeating: "  ", count: indent)
 
     var titleValue: CFTypeRef?
