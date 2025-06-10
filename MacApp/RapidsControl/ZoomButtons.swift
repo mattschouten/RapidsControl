@@ -66,18 +66,28 @@ func endMeetingForAll() {
         return
     }
     
+    var windowTitle = getFocusedWindowTitle()
+    print("Window Title after I think I activated is \(String(describing: windowTitle))")
+    
     // If this fails, no exceptions are thrown.  The close menu just doesn't do anything.  Weird, but true.
     if let closeMenuItem = findZoomMenuItem(title: "Close") {
         let result = AXUIElementPerformAction(closeMenuItem, kAXPressAction as CFString)
         if result != .success {
             print("Failed to perform Close action: \(result)")
         }
+    } else {
+        print("Failed to find the Close menu item!")
     }
+    
+    windowTitle = getFocusedWindowTitle()
+    print("Window Title after I think I hit close is \(String(describing: windowTitle))")
 
     // Probably closing the window, then finding the right button?
     // TODO:  Try a few times, faster, and stop trying once found.
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
         print("POOF")
+        windowTitle = getFocusedWindowTitle()
+        print("Window Title at POOF close is \(String(describing: windowTitle))")
         if let zoomAppElement = getZoomAppElement(),
            let targetButton = findEndMeetingForAllButton(zoomApp: zoomAppElement) {
             
@@ -242,6 +252,36 @@ func getZoomAppElement() -> AXUIElement? {
 
     return AXUIElementCreateApplication(runningApp.processIdentifier)
 }
+
+// Gets the title of the focused window.
+// Written as debug to understand how fast activating windows works.
+func getFocusedWindowTitle() -> String? {
+    let systemWideElement = AXUIElementCreateSystemWide()
+    
+    var focusedApp: CFTypeRef?
+    let appResult = AXUIElementCopyAttributeValue(systemWideElement, kAXFocusedApplicationAttribute as CFString, &focusedApp)
+    guard appResult == .success,
+          let appElement = focusedApp else {
+        return nil
+    }
+    
+    var focusedWindow: CFTypeRef?
+    let windowResult = AXUIElementCopyAttributeValue(appElement as! AXUIElement, kAXFocusedWindowAttribute as CFString, &focusedWindow)
+    guard windowResult == .success,
+          let windowElement = focusedWindow else {
+        return nil
+    }
+    
+    var titleValue: CFTypeRef?
+    let titleResult = AXUIElementCopyAttributeValue(windowElement as! AXUIElement, kAXTitleAttribute as CFString, &titleValue)
+    if titleResult == .success,
+       let title = titleValue as? String {
+            return title
+    }
+    
+    return nil
+}
+    
 
 // The Zoom menu bar is the most reliable way to get and set mute status.
 // The buttons in the window are removed from the "DOM tree" equivalent when they are hidden
