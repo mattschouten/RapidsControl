@@ -1,8 +1,7 @@
 import { streamDeck } from "@elgato/streamDeck";
 import * as net from 'net';
 import { updateKeyIconsForStatus } from "./key-icon-controller";
-
-let udsClient: net.Socket | null = null;
+import { EventEmitter } from "stream";
 
 /**
  * Shape of a message to RapidsControl
@@ -12,73 +11,158 @@ interface RapidsControlMessage {
     command: string;
 };
 
-export function connectToRapidsControlApp() {
-    if (udsClient) return;
+export class RapidsSocketClient extends EventEmitter {
+    udsClient: net.Socket | null = null;
+    isConnected: boolean;
+    reconnectInterval: NodeJS.Timeout | null;
+    shouldReconnect: boolean = true;
 
-    udsClient = net.createConnection('/tmp/rapidscontrol.sock');
+    constructor() {
+        super();
+        this.udsClient = null;
+        this.isConnected = false;
+        this.reconnectInterval = null;
+        this.shouldReconnect = true;
+    }
 
-    udsClient.on('connect', () => {
-        streamDeck.logger.info("Connected via UDS");
+    start() {
+        this._scheduleReconnect();
+        this._connect();
+    }
 
-        // Request initial status
-        udsClient?.write(JSON.stringify({type: 'getStatus'}) + '\n');
-    });
+    _connect() {
+        streamDeck.logger.trace("Attempting to _connect()");
+        if (this.udsClient) return;
 
-    udsClient.on('data', (data: Buffer) => {
-        const messages = data.toString().split('\n').filter(line => line.trim() != '');
+        streamDeck.logger.trace("...and going");
+        this.udsClient = net.createConnection('/tmp/rapidscontrol.sock');
 
-        for (const message of messages) {
-            try {
-                const parsed = JSON.parse(message);
-                streamDeck.logger.info("Received from RapidsControl:  ", parsed);
-                if ((parsed.type ?? '') === 'status') {
-                    const audioStatus = parsed.audioStatus ?? 'unknown';
-                    const videoStatus = parsed.videoStatus ?? 'unknown';
+        this.udsClient.on('connect', () => {
+            this.isConnected = true;
+            this.emit("connected");
+            streamDeck.logger.info("Connected via UDS");
 
-                    updateKeyIconsForStatus(audioStatus, videoStatus);
-                }
-            } catch (err) {
-                streamDeck.logger.error("Invalid JSON from RapidsControl", err, data);
+            this._clearReconnectInterval();
+
+
+            if (!this.udsClient) {
+                this.emit("error", "Null client after connection");
+                return;
             }
+
+            this.udsClient.on('data', (data: Buffer) => {
+                const messages = data.toString().split('\n').filter(line => line.trim() != '');
+
+                // TODO:  Pass message handling up to a higher level; this should only be concerned with
+                //        receiving the message.
+                for (const message of messages) {
+                    try {
+                        const parsed = JSON.parse(message);
+                        streamDeck.logger.info("Received from RapidsControl:  ", parsed);
+                        if ((parsed.type ?? '') === 'status') {
+                            const audioStatus = parsed.audioStatus ?? 'unknown';
+                            const videoStatus = parsed.videoStatus ?? 'unknown';
+
+                            updateKeyIconsForStatus(audioStatus, videoStatus);
+                        }
+                    } catch (err) {
+                        streamDeck.logger.error("Invalid JSON from RapidsControl", err, data);
+                    }
+                }
+            });
+
+            this.udsClient.on('error', (err) => {
+                streamDeck.logger.error('UDS Connection Error: ', err);
+                this._handleDisconnect();
+            });
+
+            this.udsClient.on('close', () => {
+                streamDeck.logger.info('UDS connection closed');
+                this._handleDisconnect();
+            });
+
+            // Request initial status
+            this.udsClient?.write(JSON.stringify({ type: 'getStatus' }) + '\n');
+        });
+    }
+
+    _handleDisconnect() {
+        streamDeck.logger.debug("_handleDisconnect")
+        this.udsClient?.destroy();
+        this.udsClient = null;
+
+        if (this.isConnected) {
+            this.isConnected = false;
+            this.emit("disconnected");
         }
-    });
 
-    udsClient.on('error', (err) => {
-        streamDeck.logger.error('UDS Connection Error: ', err);
-        udsClient?.destroy();
-        udsClient = null;
-    });
+        this._scheduleReconnect();
+    }
 
-    udsClient.on('close', () => {
-        streamDeck.logger.info('UDS connection closed');
-        udsClient = null;
-    })
-}
-
-function connectIfNotConnected(commandVerb: string): boolean {
-    if (!udsClient || udsClient.destroyed) {
-        streamDeck.logger.warn('Not connected to RapidsControl app.  Attempting to reconnect...')
-        connectToRapidsControlApp();
-
-        if (!udsClient || udsClient.destroyed) {
-            streamDeck.logger.warn(`Not connected after attempt to reconnect.  Not able to send ${commandVerb}.`);
-            return false;
+    _clearReconnectInterval() {
+        if (this.reconnectInterval) {
+            clearInterval(this.reconnectInterval);
+            this.reconnectInterval = null;
         }
     }
 
-    return true;
+    _scheduleReconnect() {
+        if (this.shouldReconnect && !this.reconnectInterval) {
+            this.reconnectInterval = setInterval(() => {
+                streamDeck.logger.debug("Attempting to connect to RapidsControl");
+                this._connect()
+            });
+        }
+    }
+
+    stop() {
+        this.shouldReconnect = false;
+        this._clearReconnectInterval();
+        if (this.udsClient) {
+            this.udsClient.end();
+            this.udsClient = null;
+        }
+
+        this.isConnected = false;
+    }
+
+    send(message: String) {
+        try {
+            if (this.isConnected && this.udsClient) {
+                this.udsClient.write(JSON.stringify(message) + '\n');
+                streamDeck.logger.info(`Sent ${message.length} character message`)
+            } else {
+                streamDeck.logger.warn("Attempted to send when not connected");
+            }
+        } catch (err) {
+            streamDeck.logger.error(`Failed to send message:`, err);
+        }
+    }
 }
+
+const socketClient = new RapidsSocketClient();
+
+socketClient.on("connected", () => {
+    streamDeck.logger.info("Connection opened to RapidsControl");
+    // TODO:  Send a status request message!
+});
+
+socketClient.on("disconnected", () => {
+    streamDeck.logger.info("Disconnected from RapidsControl");
+});
 
 function sendMessage(message: RapidsControlMessage, messageDescription: string) {
-    if (connectIfNotConnected(message.command)) {
-        try {
-            udsClient?.write(JSON.stringify(message) + '\n');
-            streamDeck.logger.info(`Sent ${messageDescription} to RapidsControl app`);
-        } catch (err) {
-            streamDeck.logger.error(`Failed to send ${messageDescription}:`, err);
-        }
+    if (!socketClient.isConnected) {
+        socketClient.start();
     }
+
+    streamDeck.logger.info(`Sending ${messageDescription} to RapidsControl app`);
+
+    const messageString = JSON.stringify(message) + '\n';
+    socketClient.send(messageString);
 }
+
+socketClient.start();
 
 export function sendMute() {
     const muteCommand: RapidsControlMessage = {
