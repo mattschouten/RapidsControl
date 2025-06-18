@@ -38,6 +38,10 @@ export class RapidsSocketClient extends EventEmitter<string> {
         this.logger.trace("...and going");
         this.udsClient = net.createConnection('/tmp/rapidscontrol.sock');
 
+        this.udsClient.on('connectionAttemptFailed', (err) => {
+            this.logger.trace('Connection attempt failed.  This is expected if RapidsControl is not running.', err);
+        });
+
         this.udsClient.on('connect', () => {
             this.isConnected = true;
             this.emit("connected");
