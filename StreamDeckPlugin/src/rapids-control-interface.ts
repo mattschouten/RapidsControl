@@ -1,4 +1,4 @@
-import { streamDeck } from "@elgato/streamDeck";
+import { Logger, streamDeck } from "@elgato/streamDeck";
 import { RapidsSocketClient } from "./rapids-socket-client";
 
 /**
@@ -9,85 +9,96 @@ interface RapidsControlMessage {
     command: string;
 };
 
-const socketClient = new RapidsSocketClient();
+export class RapidsControlInterface {
+    socketClient: RapidsSocketClient = new RapidsSocketClient();
+    logger: Logger = streamDeck.logger.createScope("RCI");
+    self: this;
 
-socketClient.on("connected", () => {
-    streamDeck.logger.info("Connection opened to RapidsControl");
-
-    sendStatusRequest();
-});
-
-socketClient.on("disconnected", () => {
-    streamDeck.logger.info("Disconnected from RapidsControl");
-});
-
-function sendMessage(message: RapidsControlMessage, messageDescription: string) {
-    if (!socketClient.isConnected) {
-        streamDeck.logger.info("---- Should connect here ---");
-        socketClient.start();
+    constructor() {
+        this._addSocketClientListeners();
     }
 
-    streamDeck.logger.info(`Sending ${messageDescription} to RapidsControl app`);
+    connectToRapidsControl() {
+        this.logger.info("Connecting to RapidsControl");
+        this.socketClient.start();
+    }
 
-    const messageString = JSON.stringify(message) + '\n';
-    socketClient.send(messageString);
-}
+    _addSocketClientListeners() {
+        this.socketClient.on("connected", () => {
+            streamDeck.logger.info("Connection opened to RapidsControl");
 
-export function quickStartupFunction() {
-    streamDeck.logger.info("QuickStartupFunction - Starting connection ... ");
-    socketClient.start();
-}
+            this.sendStatusRequest();
+        });
 
-export function sendMute() {
-    const muteCommand: RapidsControlMessage = {
-        type: 'command',
-        command: 'mute'
-    };
+        this.socketClient.on("disconnected", () => {
+            streamDeck.logger.info("Disconnected from RapidsControl");
+        });
+    }
 
-    sendMessage(muteCommand, 'mute command');
-}
+    _sendMessage(message: RapidsControlMessage, messageDescription: string) {
+        if (!this.socketClient.isConnected) {
+            streamDeck.logger.info("---- Should connect here ---");
+            this.socketClient.start();
+        }
 
-export function sendUnmute() {
-    const unmuteCommand: RapidsControlMessage = {
-        type: 'command',
-        command: 'unmute'
-    };
+        streamDeck.logger.info(`Sending ${messageDescription} to RapidsControl app`);
 
-    sendMessage(unmuteCommand, 'unmute command');
-}
+        const messageString = JSON.stringify(message) + '\n';
+        this.socketClient.send(messageString);
+    }
 
-export function sendVideoOff() {
-    const videoOffCommand: RapidsControlMessage = {
-        type: 'command',
-        command: 'videoOff'
-    };
+    sendMute() {
+        const muteCommand: RapidsControlMessage = {
+            type: 'command',
+            command: 'mute'
+        };
 
-    sendMessage(videoOffCommand, 'video off command');
-}
+        streamDeck.logger.info("THIS", this);
+        self._sendMessage(muteCommand, 'mute command');
+    }
 
-export function sendVideoOn() {
-    const videoOnCommand: RapidsControlMessage = {
-        type: 'command',
-        command: 'videoOn'
-    };
+    sendUnmute() {
+        const unmuteCommand: RapidsControlMessage = {
+            type: 'command',
+            command: 'unmute'
+        };
 
-    sendMessage(videoOnCommand, 'video on command');
-}
+        this._sendMessage(unmuteCommand, 'unmute command');
+    }
 
-export function sendEndForAll() {
-    const endForAllCommand: RapidsControlMessage = {
-        type: 'command',
-        command: 'endForAll'
-    };
+    sendVideoOff() {
+        const videoOffCommand: RapidsControlMessage = {
+            type: 'command',
+            command: 'videoOff'
+        };
 
-    sendMessage(endForAllCommand, 'end for all command');
-}
+        this._sendMessage(videoOffCommand, 'video off command');
+    }
 
-export function sendStatusRequest() {
-    const getStatusCommand: RapidsControlMessage = {
-        type: 'getStatus',
-        command: ''
-    };
+    sendVideoOn() {
+        const videoOnCommand: RapidsControlMessage = {
+            type: 'command',
+            command: 'videoOn'
+        };
 
-    sendMessage(getStatusCommand, 'status request');
+        this._sendMessage(videoOnCommand, 'video on command');
+    }
+
+    sendEndForAll() {
+        const endForAllCommand: RapidsControlMessage = {
+            type: 'command',
+            command: 'endForAll'
+        };
+
+        this._sendMessage(endForAllCommand, 'end for all command');
+    }
+
+    sendStatusRequest() {
+        const getStatusCommand: RapidsControlMessage = {
+            type: 'getStatus',
+            command: ''
+        };
+
+        this._sendMessage(getStatusCommand, 'status request');
+    }
 }
