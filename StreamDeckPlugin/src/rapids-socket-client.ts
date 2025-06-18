@@ -1,6 +1,5 @@
 import { streamDeck, EventEmitter, Logger } from "@elgato/streamDeck";
 import * as net from 'net';
-import { updateKeyIconsForStatus } from "./key-icon-controller";
 
 export class RapidsSocketClient extends EventEmitter<string> {
     udsClient: net.Socket | null = null;
@@ -52,21 +51,8 @@ export class RapidsSocketClient extends EventEmitter<string> {
             this.udsClient.on('data', (data: Buffer) => {
                 const messages = data.toString().split('\n').filter(line => line.trim() != '');
 
-                // TODO:  Pass message handling up to a higher level; this should only be concerned with
-                //        receiving the message.
                 for (const message of messages) {
-                    try {
-                        const parsed = JSON.parse(message);
-                        streamDeck.logger.info("Received from RapidsControl:  ", parsed);
-                        if ((parsed.type ?? '') === 'status') {
-                            const audioStatus = parsed.audioStatus ?? 'unknown';
-                            const videoStatus = parsed.videoStatus ?? 'unknown';
-
-                            updateKeyIconsForStatus(audioStatus, videoStatus);
-                        }
-                    } catch (err) {
-                        streamDeck.logger.error("Invalid JSON from RapidsControl", err, data);
-                    }
+                    this.emit('message', message);
                 }
             });
 

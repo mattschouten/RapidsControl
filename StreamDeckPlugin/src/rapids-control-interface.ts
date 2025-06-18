@@ -1,5 +1,6 @@
 import { Logger, streamDeck } from "@elgato/streamDeck";
 import { RapidsSocketClient } from "./rapids-socket-client";
+import { updateKeyIconsForStatus } from "./key-icon-controller";
 
 /**
  * Shape of a message to RapidsControl
@@ -24,6 +25,8 @@ function addSocketClientListeners() {
     socketClient.on("disconnected", () => {
         streamDeck.logger.info("Disconnected from RapidsControl");
     });
+
+    socketClient.on("message", onMessage);
 }
 
 /**
@@ -34,15 +37,31 @@ export function connectToRapidsControl() {
     socketClient.start();
 }
 
+function onMessage(unparsedMessage: string) {
+    try {
+        const parsed = JSON.parse(unparsedMessage);
+        logger.info("Received from RapidsControl:  ", parsed);
+        if ((parsed.type ?? '') === 'status') {
+            const audioStatus = parsed.audioStatus ?? 'unknown';
+            const videoStatus = parsed.videoStatus ?? 'unknown';
+
+            updateKeyIconsForStatus(audioStatus, videoStatus);
+        }
+    } catch (err) {
+        logger.error("Invalid JSON from RapidsControl", err, unparsedMessage);
+    }
+}
+
 function sendMessage(message: RapidsControlMessage, messageDescription: string) {
     if (!socketClient.isConnected) {
         streamDeck.logger.info("---- Should connect here ---");
         socketClient.start();
     }
 
-    streamDeck.logger.info(`Sending ${messageDescription} to RapidsControl app`);
+    logger.info(`Sending ${messageDescription} to RapidsControl app`);
 
     const messageString = JSON.stringify(message) + '\n';
+    logger.debug(messageString);
     socketClient.send(messageString);
 }
 
