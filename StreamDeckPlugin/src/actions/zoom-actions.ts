@@ -1,5 +1,5 @@
 import { action, KeyDownEvent, SingletonAction, WillAppearEvent } from "@elgato/streamDeck";
-import { RapidsControlInterface } from "../rapids-control-interface";
+import { sendEndForAll, sendMute, sendUnmute, sendVideoOff, sendVideoOn } from "../rapids-control-interface";
 
 /**
  * Base class for our actions to derive from on button presses.
@@ -8,7 +8,7 @@ class ZoomAction extends SingletonAction<RapidsControlSettings> {
 	title: string;
 	keyDownFunction: () => void;
 
-	constructor(rci: RapidsControlInterface) {
+	constructor() {
 		super();
 		this.title = "NOT SET";
 		this.keyDownFunction = () => 1;
@@ -42,51 +42,46 @@ class ZoomAction extends SingletonAction<RapidsControlSettings> {
 
 @action({ UUID: "com.cybadger.rapids-control-plugin.mute" })
 export class MuteZoom extends ZoomAction {
-
-	constructor(rci: RapidsControlInterface) {
-		super(rci);
+	constructor() {
+		super();
 		this.title = 'Mute';
-		this.keyDownFunction = rci.sendMute;
+		this.keyDownFunction = sendMute;
 	}
 }
 
 @action({ UUID: "com.cybadger.rapids-control-plugin.unmute" })
 export class UnmuteZoom extends ZoomAction {
-
-	constructor(rci: RapidsControlInterface) {
-		super(rci);
+	constructor() {
+		super();
 		this.title = 'Unmute';
-		this.keyDownFunction = rci.sendUnmute;
+		this.keyDownFunction = sendUnmute;
 	}
 }
 
 @action({ UUID: "com.cybadger.rapids-control-plugin.stop-video" })
 export class StopZoomVideo extends ZoomAction {
-
-	constructor(rci: RapidsControlInterface) {
-		super(rci);
+	constructor() {
+		super();
 		this.title = 'Stop Video';
-		this.keyDownFunction = rci.sendVideoOff;
+		this.keyDownFunction = sendVideoOff;
 	}
 }
 
 @action({ UUID: "com.cybadger.rapids-control-plugin.start-video" })
 export class StartZoomVideo extends ZoomAction {
-
-	constructor(rci: RapidsControlInterface) {
-		super(rci);
+	constructor() {
+		super();
 		this.title = 'Start\nVideo';
-		this.keyDownFunction = rci.sendVideoOn;
+		this.keyDownFunction = sendVideoOn;
 	}
 }
 
 @action({ UUID: "com.cybadger.rapids-control-plugin.end-for-all" })
 export class EndMeetingForAll extends ZoomAction {
-
-	constructor(rci: RapidsControlInterface) {
-		super(rci);
+	constructor() {
+		super();
 		this.title = 'End For All';
-		this.keyDownFunction = rci.sendEndForAll;
+		this.keyDownFunction = sendEndForAll;
 	}
 }
 
