@@ -40,6 +40,8 @@ export class RapidsSocketClient extends EventEmitter<string> {
 
         this.udsClient.on('connectionAttemptFailed', (err) => {
             this.logger.trace('Connection attempt failed.  This is expected if RapidsControl is not running.', err);
+            this.udsClient?.destroy();
+            this.udsClient = null;
         });
 
         this.udsClient.on('connect', () => {
