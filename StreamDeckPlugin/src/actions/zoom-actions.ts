@@ -1,5 +1,5 @@
 import { action, KeyDownEvent, SingletonAction, WillAppearEvent } from "@elgato/streamDeck";
-import { connectToRapidsControlApp, sendEndForAll, sendMute, sendUnmute, sendVideoOff, sendVideoOn } from "../rapids-control-interface";
+import { quickStartupFunction, sendEndForAll, sendMute, sendUnmute, sendVideoOff, sendVideoOn } from "../rapids-control-interface";
 
 /**
  * Base class for our actions to derive from on button presses.
@@ -24,7 +24,7 @@ class ZoomAction extends SingletonAction<RapidsControlSettings> {
 		const { settings } = ev.payload;
 
 		console.log("Connecting!", this.constructor.name);
-		connectToRapidsControlApp();
+		// quickStartupFunction();
 
 		return ev.action.setTitle(this.title);
 	}
