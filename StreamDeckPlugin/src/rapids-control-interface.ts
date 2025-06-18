@@ -60,7 +60,7 @@ function sendMessage(message: RapidsControlMessage, messageDescription: string) 
 
     logger.info(`Sending ${messageDescription} to RapidsControl app`);
 
-    const messageString = JSON.stringify(message) + '\n';
+    const messageString = JSON.stringify(message);
     logger.debug(messageString);
     socketClient.send(messageString);
 }
