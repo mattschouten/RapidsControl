@@ -1,4 +1,4 @@
-import { streamDeck, EventEmitter } from "@elgato/streamDeck";
+import { streamDeck, EventEmitter, Logger } from "@elgato/streamDeck";
 import * as net from 'net';
 import { updateKeyIconsForStatus } from "./key-icon-controller";
 
@@ -15,6 +15,7 @@ export class RapidsSocketClient extends EventEmitter<string> {
     isConnected: boolean;
     reconnectInterval: NodeJS.Timeout | null;
     allowedToReconnect: boolean = true;
+    logger: Logger = streamDeck.logger.createScope("RapidsSocketClient");
 
     constructor() {
         super();
@@ -25,22 +26,22 @@ export class RapidsSocketClient extends EventEmitter<string> {
     }
 
     start() {
-        streamDeck.logger.trace("_start()");
+        this.logger.trace("_start()");
         this._scheduleReconnect();
         this._connect();
     }
 
     _connect() {
-        streamDeck.logger.trace("Attempting to _connect()", this.udsClient);
+        this.logger.trace("Attempting to _connect()", this.udsClient);
         if (this.udsClient) return;
 
-        streamDeck.logger.trace("...and going");
+        this.logger.trace("...and going");
         this.udsClient = net.createConnection('/tmp/rapidscontrol.sock');
 
         this.udsClient.on('connect', () => {
             this.isConnected = true;
             this.emit("connected");
-            streamDeck.logger.info("Connected via UDS");
+            this.logger.info("Connected via UDS");
 
             this._clearReconnectInterval();
 
@@ -72,19 +73,19 @@ export class RapidsSocketClient extends EventEmitter<string> {
             });
 
             this.udsClient.on('error', (err) => {
-                streamDeck.logger.error('UDS Connection Error: ', err);
+                this.logger.error('UDS Connection Error: ', err);
                 this._handleDisconnect();
             });
 
             this.udsClient.on('close', () => {
-                streamDeck.logger.info('UDS connection closed');
+                this.logger.info('UDS connection closed');
                 this._handleDisconnect();
             });
         });
     }
 
     _handleDisconnect() {
-        streamDeck.logger.debug("_handleDisconnect")
+        this.logger.debug("_handleDisconnect")
         this.udsClient?.destroy();
         this.udsClient = null;
 
@@ -97,7 +98,7 @@ export class RapidsSocketClient extends EventEmitter<string> {
     }
 
     _clearReconnectInterval() {
-        streamDeck.logger.trace("_clearReconnectInterval");
+        this.logger.trace("_clearReconnectInterval");
         if (this.reconnectInterval) {
             clearInterval(this.reconnectInterval);
             this.reconnectInterval = null;
@@ -105,12 +106,12 @@ export class RapidsSocketClient extends EventEmitter<string> {
     }
 
     _scheduleReconnect() {
-        streamDeck.logger.info("_scheduleReconnect");
+        this.logger.info("_scheduleReconnect");
 
         // If we are allowed to reconnect, and we're not connected, and the interval does not already exist
         if (this.allowedToReconnect && !this.isConnected && !this.reconnectInterval) {
             this.reconnectInterval = setInterval(() => {
-                streamDeck.logger.debug("Attempting to connect to RapidsControl");
+                this.logger.debug("Attempting to connect to RapidsControl");
                 this._connect()
             }, 10000);
         }
@@ -127,18 +128,17 @@ export class RapidsSocketClient extends EventEmitter<string> {
         this.isConnected = false;
     }
 
-    send(message: String) {
+    send(messageJson: String) {
         try {
             if (this.isConnected && this.udsClient) {
-                // this.udsClient.write(JSON.stringify(message) + '\n');
-                this.udsClient.write(message + '\n');
-                streamDeck.logger.info(`Sent ${message.length} character message`)
+                this.udsClient.write(messageJson + '\n');
+                this.logger.info(`Sent ${messageJson.length} character message`)
             } else {
-                streamDeck.logger.warn("Attempted to send when not connected");
+                this.logger.warn("Attempted to send when not connected");
                 this._connect();
             }
         } catch (err) {
-            streamDeck.logger.error(`Failed to send message:`, err);
+            this.logger.error(`Failed to send message:`, err);
         }
     }
 }
@@ -168,7 +168,7 @@ function sendMessage(message: RapidsControlMessage, messageDescription: string) 
 }
 
 export function quickStartupFunction() {
-    streamDeck.logger.info("Starting connection ... ");
+    streamDeck.logger.info("QuickStartupFunction - Starting connection ... ");
     socketClient.start();
 }
 
