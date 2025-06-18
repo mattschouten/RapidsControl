@@ -1,6 +1,6 @@
 import streamDeck, { LogLevel } from "@elgato/streamDeck";
 import { EndMeetingForAll, MuteZoom, StartZoomVideo, StopZoomVideo, UnmuteZoom } from "./actions/zoom-actions";
-import { quickStartupFunction, RapidsSocketClient } from "./rapids-control-interface";
+import { quickStartupFunction } from "./rapids-control-interface";
 
 streamDeck.logger.setLevel(LogLevel.TRACE);
 
