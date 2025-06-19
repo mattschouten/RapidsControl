@@ -18,6 +18,7 @@ class RapidsController: ObservableObject {
     init() {
         Timer.scheduledTimer(withTimeInterval: 0.25, repeats: true) { _ in
             self.refreshStatus()
+            // TODO:  Add backoff if Zoom isn't running.  Maybe go to 10s until the app is found.
         }
     }
     

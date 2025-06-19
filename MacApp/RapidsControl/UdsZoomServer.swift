@@ -104,6 +104,7 @@ class ZoomCommandHandler: ChannelInboundHandler {
         
         var buffer = channel.allocator.buffer(capacity: 256)
         buffer.writeString(jsonString + "\n")
+        print("Just sent \(jsonString)")
         channel.writeAndFlush(buffer, promise: nil)
     }
 }

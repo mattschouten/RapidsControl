@@ -52,22 +52,71 @@ func turnOnZoomVideo() {
 }
 
 func endMeetingForAll() {
+    
+    print("Triggering pollingStep")
+    
+    DispatchQueue.main.async {
+        print("DispatchQueued... \(Thread.isMainThread)")
+        pollingStep(interval: 0.02, finalTimeout: 0.5,
+                    action: endMeetingForAllAction,
+                    stepCompletedCondition: meetingWindowIsFocused,
+                    onSuccessFn: clickClose,
+                    onTimeoutFn: { print("endMeetingForAll timed out") }
+        )
+    }
+}
+
+fileprivate func endMeetingForAllAction() -> Bool {
     print("Attempting to End Meeting for All")
     
-    guard getZoomApp() != nil else {
+    guard activateZoomApp() == true else {
         print("Could not find Zoom app running")
-        return
+        return false
     }
     
     // Zoom only shows the confirmation dialog if the Zoom meeting window is active.  So raise it.
     // If the meeting window isn't active—if it's instead the Zoom controls window—the meeting can't be closed either.
     guard activateZoomMeetingWindow() else {
         print("Could not activate Zoom meeting window")
-        return
+        return false
     }
     
+    return true
+}
+
+fileprivate func activateZoomApp() -> Bool {
+    guard let zoomApp = getZoomApp() else {
+        return false
+    }
+    
+    zoomApp.activate()
+    
+    return true
+}
+
+fileprivate func meetingWindowIsFocused() -> Bool {
+    let windowTitle = getFocusedWindowTitle()
+    return windowTitle == "Zoom Meeting"
+}
+
+fileprivate func clickClose() {
+    pollingStep(interval: 0.02, finalTimeout: 0.5,
+                action: clickCloseAction,
+                stepCompletedCondition: zoomMeetingEnded,
+                onSuccessFn: { print("Meeting SHOULD be closed") },
+                onTimeoutFn: { print("clickClose timed out") }
+    )
+}
+
+fileprivate func zoomMeetingEnded() -> Bool {
+    // TODO:  I can probably make this better.
+    let windowTitle = getFocusedWindowTitle()
+    return windowTitle == "Zoom Meeting"
+}
+
+fileprivate func clickCloseAction() -> Bool {
     var windowTitle = getFocusedWindowTitle()
-    print("Window Title after I think I activated is \(String(describing: windowTitle))")
+    print("Window Title in clickCloseAction() is \(String(describing: windowTitle))")
     
     // If this fails, no exceptions are thrown.  The close menu just doesn't do anything.  Weird, but true.
     if let closeMenuItem = findZoomMenuItem(title: "Close") {
@@ -97,6 +146,40 @@ func endMeetingForAll() {
             print("Couldn't find button :(")
         }
     }
+    
+    return true
+}
+
+fileprivate func pollingStep(
+    interval: TimeInterval = 0.02, // 20ms
+    finalTimeout: TimeInterval = 0.5, // 500ms
+    action: @escaping () -> Bool,
+    stepCompletedCondition: @escaping () -> Bool,
+    onSuccessFn: @escaping () -> Void,
+    onTimeoutFn: @escaping () -> Void
+) {
+    let deadline = Date().addingTimeInterval(finalTimeout)
+    var timer: Timer?
+    
+    timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true, block: { _ in
+        print("FIRED!")
+        guard action() else {
+            timer?.invalidate()
+            return
+        }
+        
+        if stepCompletedCondition() {
+            timer?.invalidate()
+            onSuccessFn()
+        } else if Date() >= deadline {
+            timer?.invalidate()
+            onTimeoutFn()
+        }
+    })
+    
+    print("Adding to runloop")
+    print("Is main thread? \(Thread.isMainThread)")
+    RunLoop.main.add(timer!, forMode: .common)
 }
 
 fileprivate func findMeetingWindowByName(_ windowList: [AXUIElement]) -> AXUIElement? {
@@ -126,6 +209,8 @@ fileprivate func findMeetingWindowByChildRole(_ windowList: [AXUIElement]) -> AX
 }
 
 func activateZoomMeetingWindow() -> Bool {
+    print("Activating Zoom Meeting Window...")
+    print("Is main thread? \(Thread.isMainThread)")
     guard let zoomApp = getZoomApp() else {
         print("Could not find Zoom app running")
         return false
@@ -161,8 +246,7 @@ func activateZoomMeetingWindow() -> Bool {
     
     AXUIElementPerformAction(windowToActivate, kAXRaiseAction as CFString)
     AXUIElementSetAttributeValue(zoomAppElement, kAXFocusedWindowAttribute as CFString, windowToActivate)
-    print("Meeting window should have been raised")
-    // TODO:  Might need to add some pauses!
+    print("Requested to activate and focus meeting window!")
     
     return true
 }
