@@ -4,6 +4,8 @@ import ApplicationServices
 let oneSecondInNanoseconds: UInt64 = 1_000_000_000
 let oneTenthOfASecondInNanoseconds: UInt64 = 100_000_000 //  0.1 * 1_000_000_000 nanoseconds
 
+var visitedElements: Set<AXUIElement> = []
+
 enum ZoomAudioStatus {
     case muted
     case unmuted
@@ -289,17 +291,31 @@ private func clickAXButton(in button: AXUIElement) -> Bool {
     return result == .success
 }
 
-private func findAXElement(in root: AXUIElement, matching condition: (AXUIElement) -> Bool, maxDepth: Int) -> AXUIElement? {
+private func findAXElement(in root: AXUIElement, matching condition: (AXUIElement) -> Bool, maxDepth: Int, freshSearch: Bool) -> AXUIElement? {
     if condition(root) { return root }
     
     guard maxDepth > 0 else {
         printMenuItemRecursive(root, indent: 0)
         return nil
     }
+  
+    // If this is a brand new search, clear our list of visited elements
+    if freshSearch {
+        visitedElements = []
+    }
+    
     guard let children = root.children else { return nil }
     
     for child in children {
-        if let match = findAXElement(in: child, matching: condition, maxDepth: maxDepth - 1) {
+        // If we've already seen this element, return.  Cycles can occur.  We don't need to re-search it.
+        if visitedElements.contains(child) {
+            print("I've already seen this element! \(child)")
+            return nil
+        }
+        
+        visitedElements.insert(child)
+
+        if let match = findAXElement(in: child, matching: condition, maxDepth: maxDepth - 1, freshSearch: false) {
             return match
         }
     }
