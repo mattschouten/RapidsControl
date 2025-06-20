@@ -165,87 +165,10 @@ fileprivate func clickClose(timeout: TimeInterval) async -> Bool {
     // TODO:  Maybe should be a different function?
 }
 
-fileprivate func clickClose() {
-    pollingStep(interval: 0.02, finalTimeout: 0.5,
-                action: clickCloseAction,
-                stepCompletedCondition: zoomMeetingEnded,
-                onSuccessFn: { print("Meeting SHOULD be closed") },
-                onTimeoutFn: { print("clickClose timed out") }
-    )
-}
-
 fileprivate func zoomMeetingEnded() -> Bool {
     // TODO:  I can probably make this better.
     let windowTitle = getFocusedWindowTitle()
     return windowTitle == "Zoom Meeting"
-}
-
-fileprivate func clickCloseAction() -> Bool {
-    var windowTitle = getFocusedWindowTitle()
-    print("Window Title in clickCloseAction() is \(String(describing: windowTitle))")
-    
-    // If this fails, no exceptions are thrown.  The close menu just doesn't do anything.  Weird, but true.
-    if let closeMenuItem = findZoomMenuItem(title: "Close") {
-        let result = AXUIElementPerformAction(closeMenuItem, kAXPressAction as CFString)
-        if result != .success {
-            print("Failed to perform Close action: \(result)")
-        }
-    } else {
-        print("Failed to find the Close menu item!")
-    }
-    
-    windowTitle = getFocusedWindowTitle()
-    print("Window Title after I think I hit close is \(String(describing: windowTitle))")
-
-    // Probably closing the window, then finding the right button?
-    // TODO:  Try a few times, faster, and stop trying once found.
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-        print("POOF")
-        windowTitle = getFocusedWindowTitle()
-        print("Window Title at POOF close is \(String(describing: windowTitle))")
-        if let zoomAppElement = getZoomAppElement(),
-           let targetButton = findEndMeetingForAllButton(zoomApp: zoomAppElement) {
-            
-            print("FOUND IT!")
-            clickAXButton(in: targetButton)
-        } else {
-            print("Couldn't find button :(")
-        }
-    }
-    
-    return true
-}
-
-fileprivate func pollingStep(
-    interval: TimeInterval = 0.02, // 20ms
-    finalTimeout: TimeInterval = 0.5, // 500ms
-    action: @escaping () -> Bool,
-    stepCompletedCondition: @escaping () -> Bool,
-    onSuccessFn: @escaping () -> Void,
-    onTimeoutFn: @escaping () -> Void
-) {
-    let deadline = Date().addingTimeInterval(finalTimeout)
-    var timer: Timer?
-    
-    timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true, block: { _ in
-        print("FIRED!")
-        guard action() else {
-            timer?.invalidate()
-            return
-        }
-        
-        if stepCompletedCondition() {
-            timer?.invalidate()
-            onSuccessFn()
-        } else if Date() >= deadline {
-            timer?.invalidate()
-            onTimeoutFn()
-        }
-    })
-    
-    print("Adding to runloop")
-    print("Is main thread? \(Thread.isMainThread)")
-    RunLoop.main.add(timer!, forMode: .common)
 }
 
 fileprivate func findMeetingWindowByName(_ windowList: [AXUIElement]) -> AXUIElement? {
