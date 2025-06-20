@@ -1,6 +1,9 @@
 import Cocoa
 import ApplicationServices
 
+let oneSecondInNanoseconds: UInt64 = 1_000_000_000
+let oneTenthOfASecondInNanoseconds: UInt64 = 100_000_000 //  0.1 * 1_000_000_000 nanoseconds
+
 enum ZoomAudioStatus {
     case muted
     case unmuted
@@ -52,51 +55,114 @@ func turnOnZoomVideo() {
 }
 
 func endMeetingForAll() {
+    print("Triggering main thread worker")
     
-    print("Triggering pollingStep")
-    
-    DispatchQueue.main.async {
-        print("DispatchQueued... \(Thread.isMainThread)")
-        pollingStep(interval: 0.02, finalTimeout: 0.5,
-                    action: endMeetingForAllAction,
-                    stepCompletedCondition: meetingWindowIsFocused,
-                    onSuccessFn: clickClose,
-                    onTimeoutFn: { print("endMeetingForAll timed out") }
-        )
+    Task {
+        await endMeetingForAllAction()
     }
 }
 
-fileprivate func endMeetingForAllAction() -> Bool {
+@MainActor
+fileprivate func endMeetingForAllAction() async {
     print("Attempting to End Meeting for All")
     
-    guard activateZoomApp() == true else {
-        print("Could not find Zoom app running")
-        return false
+    guard await activateZoomApp(timeout: 0.5) == true else {
+        print("CANNOT END - Could not find Zoom app running")
+        return
     }
     
     // Zoom only shows the confirmation dialog if the Zoom meeting window is active.  So raise it.
     // If the meeting window isn't active—if it's instead the Zoom controls window—the meeting can't be closed either.
-    guard activateZoomMeetingWindow() else {
+    guard await activateZoomMeetingWindow(timeout: 0.5) else {
         print("Could not activate Zoom meeting window")
-        return false
+        return
     }
     
-    return true
+    await clickClose(timeout: 0.3);
 }
 
-fileprivate func activateZoomApp() -> Bool {
+@MainActor
+fileprivate func activateZoomApp(timeout: TimeInterval) async -> Bool {
+    let maximumNanosecondsBeforeTimeout: UInt64 = UInt64(timeout * Double(oneSecondInNanoseconds))
+    var nanosecondsElapsed: UInt64 = 0
+    
     guard let zoomApp = getZoomApp() else {
         return false
     }
     
-    zoomApp.activate()
+    repeat {
+        print("Attempting to activate Zoom...")
+        
+        // TODO: If options are omitted, Zoom frequently won't activate.  Consider digging in later.
+        let activated = zoomApp.activate(options: [NSApplication.ActivationOptions.activateAllWindows])
+        if (!activated) {
+            print("I am not sure why I couldn't activate Zoom.\n", zoomApp)
+        }
+        
+        print("Activate request delivered? \(activated)\t\tApp active? \(zoomApp.isActive)")
+        try? await Task.sleep(nanoseconds: oneTenthOfASecondInNanoseconds)
+        nanosecondsElapsed += oneTenthOfASecondInNanoseconds
+    } while (!zoomAppIsActive() && nanosecondsElapsed < maximumNanosecondsBeforeTimeout)
     
-    return true
+    return zoomAppIsActive()
+}
+
+fileprivate func zoomAppIsActive() -> Bool {
+    if let zoomApp = getZoomApp() {
+        return zoomApp.isActive
+    }
+    
+    return false
 }
 
 fileprivate func meetingWindowIsFocused() -> Bool {
     let windowTitle = getFocusedWindowTitle()
     return windowTitle == "Zoom Meeting"
+}
+
+
+// Assumes Zoom is active.  If Zoom is not, this will fail.
+fileprivate func clickClose(timeout: TimeInterval) async -> Bool {
+    let maximumNanosecondsBeforeTimeout: UInt64 = UInt64(timeout * Double(oneSecondInNanoseconds))
+    var nanosecondsElapsed: UInt64 = 0
+    
+    var windowTitle = getFocusedWindowTitle()
+    print("Window Title at start of clickClose() is \(String(describing: windowTitle))")
+    
+    // If this fails, no exceptions are thrown.  The close menu just doesn't do anything.  Weird, but true.
+    if let closeMenuItem = findZoomMenuItem(title: "Close") {
+        let result = AXUIElementPerformAction(closeMenuItem, kAXPressAction as CFString)
+        if result != .success {
+            print("Failed to perform Close action: \(result)")
+        }
+    } else {
+        print("Failed to find the Close menu item!")
+    }
+    // TODO:  Some cleanup is possible here.  Should add a check for whether Close did something.
+    
+    windowTitle = getFocusedWindowTitle()
+    print("Window Title after I think I hit close is \(String(describing: windowTitle))")
+
+    // TODO:  Try a few times, faster, and stop trying once found.
+    repeat {
+        print("POOF")
+        windowTitle = getFocusedWindowTitle()
+        print("Window Title at POOF close is \(String(describing: windowTitle))")
+        if let zoomAppElement = getZoomAppElement(),
+           let targetButton = findEndMeetingForAllButton(zoomApp: zoomAppElement) {
+            
+            print("FOUND IT!")
+            clickAXButton(in: targetButton)
+        } else {
+            print("Couldn't find button :(")
+        }
+        
+        try? await Task.sleep(nanoseconds: oneTenthOfASecondInNanoseconds)
+        nanosecondsElapsed += oneTenthOfASecondInNanoseconds
+    } while (!zoomAppIsActive() && nanosecondsElapsed < maximumNanosecondsBeforeTimeout)
+    
+    return zoomAppIsActive();
+    // TODO:  Maybe should be a different function?
 }
 
 fileprivate func clickClose() {
@@ -208,17 +274,18 @@ fileprivate func findMeetingWindowByChildRole(_ windowList: [AXUIElement]) -> AX
     return nil
 }
 
-func activateZoomMeetingWindow() -> Bool {
+@MainActor
+func activateZoomMeetingWindow(timeout: TimeInterval) async -> Bool {
+    // Zoom only shows the confirmation dialog if the Zoom meeting window is active.  So raise it.
     print("Activating Zoom Meeting Window...")
-    print("Is main thread? \(Thread.isMainThread)")
-    guard let zoomApp = getZoomApp() else {
-        print("Could not find Zoom app running")
+    
+    guard zoomAppIsActive() else {
+        print("Zoom app is not active.  Giving up.")
         return false
     }
     
-    // Zoom only shows the confirmation dialog if the Zoom meeting window is active.  So raise it.
-    zoomApp.activate()
-
+    print("Is main thread? \(Thread.isMainThread)")
+    
     guard let zoomAppElement = getZoomAppElement() else {
         print("Could not get Zoom App Element")
         return false
@@ -239,16 +306,26 @@ func activateZoomMeetingWindow() -> Bool {
         meetingWindow = findMeetingWindowByChildRole(windowList)
     }
     
-    // Bring the meeting window to the foreground
     guard let windowToActivate = meetingWindow else {
         return false
     }
     
-    AXUIElementPerformAction(windowToActivate, kAXRaiseAction as CFString)
-    AXUIElementSetAttributeValue(zoomAppElement, kAXFocusedWindowAttribute as CFString, windowToActivate)
-    print("Requested to activate and focus meeting window!")
+    let maximumNanosecondsBeforeTimeout: UInt64 = UInt64(timeout * Double(oneSecondInNanoseconds))
+    var nanosecondsElapsed: UInt64 = 0
     
-    return true
+    repeat {
+        // Bring the meeting window to the foreground
+        AXUIElementPerformAction(windowToActivate, kAXRaiseAction as CFString)
+        AXUIElementSetAttributeValue(zoomAppElement, kAXFocusedWindowAttribute as CFString, windowToActivate)
+        print("Requested to activate and focus meeting window!")
+
+        try? await Task.sleep(nanoseconds: oneTenthOfASecondInNanoseconds)
+        nanosecondsElapsed += oneTenthOfASecondInNanoseconds
+    }
+    while (!meetingWindowIsFocused() && nanosecondsElapsed < maximumNanosecondsBeforeTimeout)
+
+    
+    return meetingWindowIsFocused()
 }
 
 func getAudioStatus() -> ZoomAudioStatus {
@@ -318,7 +395,8 @@ private func findAXButton(withTitle title: String, in appElement: AXUIElement) -
             guard let role = element.role, role == kAXButtonRole as String else { return false }
             return element.title == title
         },
-        maxDepth: 15
+        maxDepth: 55,
+        freshSearch: true
     )
 }
 
