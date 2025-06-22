@@ -37,23 +37,21 @@ func unmuteZoom() {
 }
 
 func turnOffZoomVideo() {
-    // TODO:  GET VIDEO STATUS
-    //if getAudioStatus() != .unmuted {
-    print("Stopping Zoom Video")
+    if getVideoStatus() != .off {
+        print("Stopping Zoom Video")
         if let muteMenuItem = findZoomMenuItem(title: "Stop video") {
             AXUIElementPerformAction(muteMenuItem, kAXPressAction as CFString)
         }
-    //}
+    }
 }
 
 func turnOnZoomVideo() {
-    // TODO:  GET VIDEO STATUS
-    //if getAudioStatus() != .unmuted {
-    print("Starting Zoom Video")
+    if getVideoStatus() != .on {
+        print("Starting Zoom Video")
         if let muteMenuItem = findZoomMenuItem(title: "Start video") {
             AXUIElementPerformAction(muteMenuItem, kAXPressAction as CFString)
         }
-    //}
+    }
 }
 
 func endMeetingForAll() {
