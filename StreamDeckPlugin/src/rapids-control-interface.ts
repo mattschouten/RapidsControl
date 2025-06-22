@@ -40,7 +40,6 @@ export function connectToRapidsControl() {
 }
 
 function onMessage(unparsedMessage: string) {
-    logger.trace("Unparsed message: ", unparsedMessage);
     try {
         const parsed = JSON.parse(unparsedMessage);
         logger.info("Received from RapidsControl:  ", parsed);
