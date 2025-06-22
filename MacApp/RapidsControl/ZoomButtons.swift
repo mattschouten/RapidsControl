@@ -18,20 +18,13 @@ enum ZoomVideoStatus {
     case unknown
 }
 
-func clickMenuItem(_ menuItem: AXUIElement) -> AXError {
-    let status = AXUIElementPerformAction(menuItem, kAXPressAction as CFString)
-    if status == .success {
-        print("Error clicking menu item: \(status)")
-    }
-    
-    return status
-}
+
 
 func muteZoom() {
     if getAudioStatus() != .muted {
         print("Muting Zoom Audio")
         if let muteMenuItem = findZoomMenuItem(title: "Mute audio") {
-            clickMenuItem(muteMenuItem)
+            _ = clickUIElement(in: muteMenuItem)
         }
     }
 }
@@ -40,7 +33,7 @@ func unmuteZoom() {
     if getAudioStatus() != .unmuted {
         print("Unmuting Zoom Audio")
         if let muteMenuItem = findZoomMenuItem(title: "Unmute audio") {
-            clickMenuItem(muteMenuItem)
+            _ = clickUIElement(in: muteMenuItem)
         }
     }
 }
@@ -49,7 +42,7 @@ func turnOffZoomVideo() {
     if getVideoStatus() != .off {
         print("Stopping Zoom Video")
         if let videoMenuItem = findZoomMenuItem(title: "Stop video") {
-            clickMenuItem(videoMenuItem)
+            _ = clickUIElement(in: videoMenuItem)
         }
     }
 }
@@ -58,7 +51,7 @@ func turnOnZoomVideo() {
     if getVideoStatus() != .on {
         print("Starting Zoom Video")
         if let videoMenuItem = findZoomMenuItem(title: "Start video") {
-            clickMenuItem(videoMenuItem)
+            _ = clickUIElement(in: videoMenuItem)
         }
     }
 }
@@ -140,8 +133,8 @@ fileprivate func clickClose(timeout: TimeInterval) async -> Bool {
     
     // If this fails, no exceptions are thrown.  The close menu just doesn't do anything.  Weird, but true.
     if let closeMenuItem = findZoomMenuItem(title: "Close") {
-        let result = AXUIElementPerformAction(closeMenuItem, kAXPressAction as CFString)
-        if result != .success {
+        let result = clickUIElement(in: closeMenuItem)
+        if !result {
             print("Failed to perform Close action: \(result)")
         }
     } else {
@@ -161,7 +154,7 @@ fileprivate func clickClose(timeout: TimeInterval) async -> Bool {
            let targetButton = findEndMeetingForAllButton(zoomApp: zoomAppElement) {
             
             print("FOUND IT!")
-            clickAXButton(in: targetButton)
+            clickUIElement(in: targetButton)
         } else {
             print("Couldn't find button :(")
         }
@@ -290,11 +283,15 @@ func getAttribute(_ element: AXUIElement, _ attribute: String) throws -> AnyObje
     }
 }
 
-private func clickAXButton(in button: AXUIElement) -> Bool {
-    let title = button.title
+func clickUIElement(in uiElement: AXUIElement) -> Bool {
+    let title = uiElement.title
     print("Clicking button \(String(describing: title))")
     
-    let result = AXUIElementPerformAction(button, kAXPressAction as CFString)
+    let result = AXUIElementPerformAction(uiElement, kAXPressAction as CFString)
+    if result != .success {
+        print("Error clicking UI element: \(result)")
+    }
+    
     return result == .success
 }
 
