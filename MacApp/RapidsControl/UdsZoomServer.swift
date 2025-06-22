@@ -52,40 +52,36 @@ class ZoomCommandHandler: ChannelInboundHandler {
                     return
                 }
                 
-                let response: String
-                
-                switch parsed.command.trimmingCharacters(in: .whitespacesAndNewlines) {
-                case "mute":
-                    muteZoom()
-                    response = "Muted"
-                case "unmute":
-                    unmuteZoom()
-                    response = "Unmuted"
-                case "videoOff":
-                    turnOffZoomVideo()
-                    response = "Video Off"
-                case "videoOn":
-                    turnOnZoomVideo()
-                    response = "Video On"
-                case "endForAll":
-                    endMeetingForAll()
-                    response = "End For All"
+                switch parsed.type.trimmingCharacters(in: .whitespacesAndNewlines) {
                 case "getStatus":
-                    let audioStatus = getAudioStatus()
-                    let responseMessage = ZoomStatusMessage(type: "status", audioStatus: String(describing: audioStatus), videoStatus: "unknown")
-                    if let jsonData = try? JSONEncoder().encode(responseMessage),
-                       let jsonString = String(data: jsonData, encoding: .utf8) {
-                        response = jsonString
-                    } else {
-                        response = "status broke"
+                    let statusMessage = ZoomStatusMessage(
+                        type: "status",
+                        audioStatus: String(describing: getAudioStatus()),
+                        videoStatus: String(describing: getVideoStatus()))
+                    
+                    print("Sending Status", statusMessage)
+                    sendStatus(statusMessage: statusMessage)
+                case "command":
+                    switch parsed.command.trimmingCharacters(in: .whitespacesAndNewlines) {
+                    case "mute":
+                        muteZoom()
+                    case "unmute":
+                        unmuteZoom()
+                    case "videoOff":
+                        turnOffZoomVideo()
+                    case "videoOn":
+                        turnOnZoomVideo()
+                    case "endForAll":
+                        endMeetingForAll()
+                    default:
+                        var buffer = channel.allocator.buffer(capacity: 256)
+                        buffer.writeString("UNKNOWN COMMAND" + "\n")
+                        print("Just sent UNKNOWN COMMAND message")
+                        channel.writeAndFlush(buffer, promise: nil)
                     }
                 default:
-                    response = "Unknown Command"
+                    print("Unknown message type")
                 }
-                
-                var outBuffer = context.channel.allocator.buffer(capacity: 256)
-                outBuffer.writeString(response + "\n")
-                context.writeAndFlush(self.wrapOutboundOut(buffer), promise: nil)
             }
         }
     }
