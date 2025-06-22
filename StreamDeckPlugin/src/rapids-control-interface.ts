@@ -12,6 +12,7 @@ interface RapidsControlMessage {
 
 const logger: Logger = streamDeck.logger.createScope("RCI");
 const socketClient: RapidsSocketClient = new RapidsSocketClient();
+let statusRequestInterval: NodeJS.Timeout | null;
 
 addSocketClientListeners();
 
@@ -19,11 +20,12 @@ function addSocketClientListeners() {
     socketClient.on("connected", () => {
         streamDeck.logger.info("Connection opened to RapidsControl");
 
-        sendStatusRequest();
+        _pollForStatusUntilReceived();
     });
 
     socketClient.on("disconnected", () => {
         streamDeck.logger.info("Disconnected from RapidsControl");
+        _clearStatusRequest();
     });
 
     socketClient.on("message", onMessage);
@@ -38,6 +40,7 @@ export function connectToRapidsControl() {
 }
 
 function onMessage(unparsedMessage: string) {
+    logger.trace("Unparsed message: ", unparsedMessage);
     try {
         const parsed = JSON.parse(unparsedMessage);
         logger.info("Received from RapidsControl:  ", parsed);
@@ -46,9 +49,30 @@ function onMessage(unparsedMessage: string) {
             const videoStatus = parsed.videoStatus ?? 'unknown';
 
             updateKeyIconsForStatus(audioStatus, videoStatus);
+
+            _clearStatusRequest();
         }
     } catch (err) {
         logger.error("Invalid JSON from RapidsControl", err, unparsedMessage);
+    }
+}
+
+function _pollForStatusUntilReceived() {
+    if (!statusRequestInterval) {
+        logger.debug("Starting status request poll");
+        statusRequestInterval = setInterval(() => {
+            sendStatusRequest();
+        }, 1000);
+    } else {
+        logger.debug("Already polling for status");
+    }
+}
+
+function _clearStatusRequest() {
+    if (statusRequestInterval) {
+        logger.debug("Clearing status request poll");
+        clearInterval(statusRequestInterval)
+        statusRequestInterval = null;
     }
 }
 
