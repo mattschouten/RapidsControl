@@ -18,11 +18,20 @@ enum ZoomVideoStatus {
     case unknown
 }
 
+func clickMenuItem(_ menuItem: AXUIElement) -> AXError {
+    let status = AXUIElementPerformAction(menuItem, kAXPressAction as CFString)
+    if status == .success {
+        print("Error clicking menu item: \(status)")
+    }
+    
+    return status
+}
+
 func muteZoom() {
     if getAudioStatus() != .muted {
         print("Muting Zoom Audio")
         if let muteMenuItem = findZoomMenuItem(title: "Mute audio") {
-            AXUIElementPerformAction(muteMenuItem, kAXPressAction as CFString)
+            clickMenuItem(muteMenuItem)
         }
     }
 }
@@ -31,7 +40,7 @@ func unmuteZoom() {
     if getAudioStatus() != .unmuted {
         print("Unmuting Zoom Audio")
         if let muteMenuItem = findZoomMenuItem(title: "Unmute audio") {
-            AXUIElementPerformAction(muteMenuItem, kAXPressAction as CFString)
+            clickMenuItem(muteMenuItem)
         }
     }
 }
@@ -39,8 +48,8 @@ func unmuteZoom() {
 func turnOffZoomVideo() {
     if getVideoStatus() != .off {
         print("Stopping Zoom Video")
-        if let muteMenuItem = findZoomMenuItem(title: "Stop video") {
-            AXUIElementPerformAction(muteMenuItem, kAXPressAction as CFString)
+        if let videoMenuItem = findZoomMenuItem(title: "Stop video") {
+            clickMenuItem(videoMenuItem)
         }
     }
 }
@@ -48,8 +57,8 @@ func turnOffZoomVideo() {
 func turnOnZoomVideo() {
     if getVideoStatus() != .on {
         print("Starting Zoom Video")
-        if let muteMenuItem = findZoomMenuItem(title: "Start video") {
-            AXUIElementPerformAction(muteMenuItem, kAXPressAction as CFString)
+        if let videoMenuItem = findZoomMenuItem(title: "Start video") {
+            clickMenuItem(videoMenuItem)
         }
     }
 }
