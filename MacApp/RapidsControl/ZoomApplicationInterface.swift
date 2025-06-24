@@ -47,6 +47,7 @@ func endMeetingForAllAction() async {
 @MainActor
 fileprivate func activateZoomApp(timeout: TimeInterval) async -> Bool {
     let maximumNanosecondsBeforeTimeout: UInt64 = UInt64(timeout * Double(oneSecondInNanoseconds))
+    let justForABlink: UInt64 = 100
     var nanosecondsElapsed: UInt64 = 0
     
     guard let zoomApp = getZoomApp() else {
@@ -56,14 +57,15 @@ fileprivate func activateZoomApp(timeout: TimeInterval) async -> Bool {
     // App activation in MacOS is clumsy and unreliable
     // So we use a multi-layered approach to activating Zoom.
     // 1. NSRunningApplication.activate (a couple attempts)
+    // 2. Try Open-ing the app
     // 2. Use AppleScript as a fallback
     // After each step, we try to verify the app has been raised to move things along faster.
     // We'll try to activate the specific window (kAXRaiseAction) separately—in testing, it does not
     // raise the entire application, just the window.
     
     zoomApp.activate(options: [.activateIgnoringOtherApps, .activateIgnoringOtherApps])
-    try? await Task.sleep(nanoseconds: 55)
-    nanosecondsElapsed += 55
+    try? await Task.sleep(nanoseconds: justForABlink)
+    nanosecondsElapsed += justForABlink
 
     repeat {
         print("Attempting to activate Zoom...")
@@ -71,18 +73,19 @@ fileprivate func activateZoomApp(timeout: TimeInterval) async -> Bool {
         // .activateIgnoringOtherApps was deprecated and claims to not do anything, but activation seems to work
         // better when that option is included.
         zoomApp.activate(options: [.activateIgnoringOtherApps, .activateIgnoringOtherApps])
-        if !zoomAppIsActive() {
-            print("activate call did not succeed")
+        await sleepAndCheckActive(nanosToSleep: justForABlink, totalNanos: &nanosecondsElapsed, contextMessage: "Activate Call")
+
+        var isFrontmost = NSWorkspace.shared.frontmostApplication?.processIdentifier == zoomApp.processIdentifier
+        if let bundleUrl = zoomApp.bundleURL, !isFrontmost {
+            activateZoomWithOpen(bundleUrl: bundleUrl)
         }
+        await sleepAndCheckActive(nanosToSleep: justForABlink, totalNanos: &nanosecondsElapsed, contextMessage: "Open Call")
         
-        let isFrontmost = NSWorkspace.shared.frontmostApplication?.processIdentifier == zoomApp.processIdentifier
+        isFrontmost = NSWorkspace.shared.frontmostApplication?.processIdentifier == zoomApp.processIdentifier
         if let bundleId = zoomApp.bundleIdentifier, !isFrontmost {
             activateZoomWithApplescript(bundleIdentifier: bundleId)
         }
-        
-        if !zoomAppIsActive() {
-            print("Applescript activation did not succeed")
-        }
+        await sleepAndCheckActive(nanosToSleep: justForABlink, totalNanos: &nanosecondsElapsed, contextMessage: "Applescript Activation")
         
         print("After attempting to activate...App active? \(zoomApp.isActive)")
         try? await Task.sleep(nanoseconds: oneTenthOfASecondInNanoseconds)
@@ -90,6 +93,19 @@ fileprivate func activateZoomApp(timeout: TimeInterval) async -> Bool {
     } while (!zoomAppIsActive() && nanosecondsElapsed < maximumNanosecondsBeforeTimeout)
     
     return zoomAppIsActive()
+}
+
+fileprivate func sleepAndCheckActive(nanosToSleep: UInt64, totalNanos: inout UInt64, contextMessage: String) async {
+    try? await Task.sleep(nanoseconds: nanosToSleep)
+    totalNanos += nanosToSleep
+    
+    if !zoomAppIsActive() {
+        print("Zoom not active:  \(contextMessage)")
+    }
+}
+
+fileprivate func activateZoomWithOpen(bundleUrl: URL) {
+    NSWorkspace.shared.openApplication(at: bundleUrl, configuration: NSWorkspace.OpenConfiguration())
 }
 
 fileprivate func activateZoomWithApplescript(bundleIdentifier: String) {
