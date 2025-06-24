@@ -53,16 +53,38 @@ fileprivate func activateZoomApp(timeout: TimeInterval) async -> Bool {
         return false
     }
     
+    // App activation in MacOS is clumsy and unreliable
+    // So we use a multi-layered approach to activating Zoom.
+    // 1. NSRunningApplication.activate (a couple attempts)
+    // 2. Use AppleScript as a fallback
+    // After each step, we try to verify the app has been raised to move things along faster.
+    // We'll try to activate the specific window (kAXRaiseAction) separately—in testing, it does not
+    // raise the entire application, just the window.
+    
+    zoomApp.activate(options: [.activateIgnoringOtherApps, .activateIgnoringOtherApps])
+    try? await Task.sleep(nanoseconds: 55)
+    nanosecondsElapsed += 55
+
     repeat {
         print("Attempting to activate Zoom...")
         
-        // TODO: If options are omitted, Zoom frequently won't activate.  Consider digging in later.
-        let activated = zoomApp.activate(options: [NSApplication.ActivationOptions.activateAllWindows])
-        if (!activated) {
-            print("I am not sure why I couldn't activate Zoom.\n", zoomApp)
+        // .activateIgnoringOtherApps was deprecated and claims to not do anything, but activation seems to work
+        // better when that option is included.
+        zoomApp.activate(options: [.activateIgnoringOtherApps, .activateIgnoringOtherApps])
+        if !zoomAppIsActive() {
+            print("activate call did not succeed")
         }
         
-        print("Activate request delivered? \(activated)\t\tApp active? \(zoomApp.isActive)")
+        let isFrontmost = NSWorkspace.shared.frontmostApplication?.processIdentifier == zoomApp.processIdentifier
+        if let bundleId = zoomApp.bundleIdentifier, !isFrontmost {
+            activateZoomWithApplescript(bundleIdentifier: bundleId)
+        }
+        
+        if !zoomAppIsActive() {
+            print("Applescript activation did not succeed")
+        }
+        
+        print("After attempting to activate...App active? \(zoomApp.isActive)")
         try? await Task.sleep(nanoseconds: oneTenthOfASecondInNanoseconds)
         nanosecondsElapsed += oneTenthOfASecondInNanoseconds
     } while (!zoomAppIsActive() && nanosecondsElapsed < maximumNanosecondsBeforeTimeout)
@@ -70,19 +92,39 @@ fileprivate func activateZoomApp(timeout: TimeInterval) async -> Bool {
     return zoomAppIsActive()
 }
 
-fileprivate func zoomAppIsActive() -> Bool {
-    if let zoomApp = getZoomApp() {
-        return zoomApp.isActive
+fileprivate func activateZoomWithApplescript(bundleIdentifier: String) {
+    let script = """
+        tell application id "\(bundleIdentifier)" to activate
+    """
+    
+    var error: NSDictionary?
+    if let appleScript = NSAppleScript(source: script) {
+        appleScript.executeAndReturnError(&error)
     }
     
-    return false
+    print("Applescript result: \(String(describing: error))")
+}
+
+fileprivate func zoomAppIsActive() -> Bool {
+    guard let zoomApp = getZoomApp(),
+          NSWorkspace.shared.frontmostApplication?.processIdentifier == zoomApp.processIdentifier else {
+        return false
+    }
+    
+    guard let zoomAppElement = getZoomAppElement() else {
+        return false
+    }
+    
+    var focusedWindow: AnyObject?
+    let result = AXUIElementCopyAttributeValue(zoomAppElement, kAXFocusedWindowAttribute as CFString, &focusedWindow)
+    
+    return result == .success && focusedWindow != nil
 }
 
 fileprivate func meetingWindowIsFocused() -> Bool {
     let windowTitle = getFocusedWindowTitle()
     return windowTitle == "Zoom Meeting"
 }
-
 
 // Assumes Zoom is active.  If Zoom is not, this will fail.
 fileprivate func clickClose(timeout: TimeInterval) async -> Bool {
