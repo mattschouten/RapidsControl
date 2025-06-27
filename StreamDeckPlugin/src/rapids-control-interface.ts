@@ -47,7 +47,10 @@ function onMessage(unparsedMessage: string) {
             const audioStatus = parsed.audioStatus ?? 'unknown';
             const videoStatus = parsed.videoStatus ?? 'unknown';
 
-            updateKeyIconsForStatus(audioStatus, videoStatus);
+            // TODO:  Call Active probably can become an actual part of status
+            const callIsActive = !(audioStatus === 'unknown' && videoStatus === 'unknown');
+
+            updateKeyIconsForStatus(audioStatus, videoStatus, callIsActive);
 
             _clearStatusRequest();
         }

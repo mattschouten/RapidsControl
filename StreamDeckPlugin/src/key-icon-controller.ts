@@ -1,7 +1,7 @@
 import { streamDeck } from "@elgato/streamDeck";
 
 // TODO:  make a type or enum, not just strings
-export function updateKeyIconsForStatus(audioStatus: string, videoStatus: string) {
+export function updateKeyIconsForStatus(audioStatus: string, videoStatus: string, callIsActive: Boolean) {
     streamDeck.actions.forEach((action) => {
         if (action.manifestId === 'com.cybadger.rapids-control-plugin.mute' ||
             action.manifestId === 'com.cybadger.rapids-control-plugin.unmute') {
@@ -28,6 +28,18 @@ export function updateKeyIconsForStatus(audioStatus: string, videoStatus: string
                     action.setImage('imgs/actions/zoom/green-square.svg');
                     break;
                 case 'unknown':
+                    action.setImage('imgs/actions/zoom/gray-square.svg');
+                    break;
+            }
+        }
+
+        if (action.manifestId === 'com.cybadger.rapids-control-plugin.end-for-all') {
+            switch (callIsActive) {
+                case true:
+                    action.setImage('imgs/actions/zoom/green-square.svg');
+                    // TODO:  A better icon would be nice.
+                    break;
+                case false:
                     action.setImage('imgs/actions/zoom/gray-square.svg');
                     break;
             }
