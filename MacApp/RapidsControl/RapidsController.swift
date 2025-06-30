@@ -13,6 +13,8 @@ class RapidsController: ObservableObject {
     var lastAudioStatus: ZoomAudioStatus = .unknown
     var lastVideoStatus: ZoomVideoStatus = .unknown
     
+    private var inMeeting = false
+    
     private let udsServer = UDSZoomServer()
     
     init() {
@@ -25,6 +27,7 @@ class RapidsController: ObservableObject {
     func refreshStatus() {
         audioStatus = getAudioStatus()
         videoStatus = getVideoStatus()
+        inMeeting = isMeetingActive()
         
         var shouldSendStatusUpdate = false
 
@@ -48,7 +51,7 @@ class RapidsController: ObservableObject {
     }
     
     func sendStatusUpdate() {
-        udsServer.sendStatusUpdate(audioStatus: audioStatus, videoStatus: videoStatus)
+        udsServer.sendStatusUpdate(audioStatus: audioStatus, videoStatus: videoStatus, inMeeting: inMeeting)
     }
     
     func startServer() {

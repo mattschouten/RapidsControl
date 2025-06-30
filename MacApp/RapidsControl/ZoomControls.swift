@@ -37,6 +37,11 @@ func getVideoStatus() -> ZoomVideoStatus {
     }
 }
 
+func isMeetingActive() -> Bool {
+    // TODO:  Maybe Meeting -> Fullscreen.  But audio status is already tested.
+    return getAudioStatus() != .unknown
+}
+
 func muteZoom() {
     if getAudioStatus() != .muted {
         print("Muting Zoom Audio")

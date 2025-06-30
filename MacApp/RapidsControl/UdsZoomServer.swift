@@ -19,6 +19,7 @@ struct ZoomStatusMessage: Codable {
     let type: String
     let audioStatus: String
     let videoStatus: String
+    let meetingActive: Bool
 }
 
 class ZoomCommandHandler: ChannelInboundHandler {
@@ -57,7 +58,8 @@ class ZoomCommandHandler: ChannelInboundHandler {
                     let statusMessage = ZoomStatusMessage(
                         type: "status",
                         audioStatus: String(describing: getAudioStatus()),
-                        videoStatus: String(describing: getVideoStatus()))
+                        videoStatus: String(describing: getVideoStatus()),
+                        meetingActive: isMeetingActive())
                     
                     print("Sending Status", statusMessage)
                     sendStatus(statusMessage: statusMessage)
@@ -135,11 +137,13 @@ public class UDSZoomServer {
     }
     
     // TODO:  Better data type for params
-    func sendStatusUpdate(audioStatus: ZoomAudioStatus, videoStatus: ZoomVideoStatus) {
+    func sendStatusUpdate(audioStatus: ZoomAudioStatus, videoStatus: ZoomVideoStatus, inMeeting: Bool) {
         let statusMessage = ZoomStatusMessage(
             type: "status",
             audioStatus: String(describing: audioStatus),
-            videoStatus: String(describing: videoStatus))
+            videoStatus: String(describing: videoStatus),
+            meetingActive: inMeeting
+        )
         
         handler?.sendStatus(statusMessage: statusMessage)
     }
