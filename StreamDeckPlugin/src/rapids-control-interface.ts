@@ -46,9 +46,7 @@ function onMessage(unparsedMessage: string) {
         if ((parsed.type ?? '') === 'status') {
             const audioStatus = parsed.audioStatus ?? 'unknown';
             const videoStatus = parsed.videoStatus ?? 'unknown';
-
-            // TODO:  Call Active probably can become an actual part of status
-            const callIsActive = !(audioStatus === 'unknown' && videoStatus === 'unknown');
+            const callIsActive = parsed.meetingActive ?? 'unknown';
 
             updateKeyIconsForStatus(audioStatus, videoStatus, callIsActive);
 
