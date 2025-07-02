@@ -26,6 +26,12 @@ function addSocketClientListeners() {
     socketClient.on("disconnected", () => {
         streamDeck.logger.info("Disconnected from RapidsControl");
         _clearStatusRequest();
+
+        updateKeyIconsForStatus('unknown', 'unknown', false, socketClient.isConnected);
+    });
+
+    socketClient.on("connectionAttemptFailed", () => {
+        updateKeyIconsForStatus('unknown', 'unknown', false, socketClient.isConnected);
     });
 
     socketClient.on("message", onMessage);
@@ -37,6 +43,9 @@ function addSocketClientListeners() {
 export function connectToRapidsControl() {
     logger.info("Connecting to RapidsControl");
     socketClient.start();
+
+    // This call may not have any effect if the actions have not been set up yet
+    updateKeyIconsForStatus('unknown', 'unknown', false, socketClient.isConnected);
 }
 
 function onMessage(unparsedMessage: string) {
@@ -48,7 +57,7 @@ function onMessage(unparsedMessage: string) {
             const videoStatus = parsed.videoStatus ?? 'unknown';
             const callIsActive = parsed.meetingActive ?? 'unknown';
 
-            updateKeyIconsForStatus(audioStatus, videoStatus, callIsActive);
+            updateKeyIconsForStatus(audioStatus, videoStatus, callIsActive, socketClient.isConnected);
 
             _clearStatusRequest();
         }
