@@ -13,7 +13,7 @@
 			],
 			"States": [
 				{
-					"Image": "imgs/actions/zoom/gray-square",
+					"Image": "imgs/actions/zoom/inactive-square",
 					"TitleAlignment": "middle"
 				}
 			]
@@ -28,7 +28,7 @@
 			],
 			"States": [
 				{
-					"Image": "imgs/actions/zoom/gray-square",
+					"Image": "imgs/actions/zoom/inactive-square",
 					"TitleAlignment": "middle"
 				}
 			]
@@ -43,7 +43,7 @@
 			],
 			"States": [
 				{
-					"Image": "imgs/actions/zoom/gray-square",
+					"Image": "imgs/actions/zoom/inactive-square",
 					"TitleAlignment": "middle"
 				}
 			]
@@ -58,7 +58,7 @@
 			],
 			"States": [
 				{
-					"Image": "imgs/actions/zoom/gray-square",
+					"Image": "imgs/actions/zoom/inactive-square",
 					"TitleAlignment": "middle"
 				}
 			]
@@ -73,7 +73,7 @@
 			],
 			"States": [
 				{
-					"Image": "imgs/actions/zoom/gray-square",
+					"Image": "imgs/actions/zoom/inactive-square",
 					"TitleAlignment": "middle"
 				}
 			]
